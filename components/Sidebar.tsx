@@ -81,13 +81,16 @@ export function Sidebar({ profile }: SidebarProps) {
     <motion.aside
       animate={{ width: collapsed ? 72 : 256 }}
       transition={{ duration: 0.25, ease: 'easeInOut' }}
-      className="flex flex-col min-h-screen bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 overflow-hidden flex-shrink-0"
+      className="flex flex-col min-h-screen bg-white dark:bg-zinc-950 border-r border-zinc-200 dark:border-zinc-800 overflow-hidden flex-shrink-0"
     >
-      {/* Logo */}
-      <div className="px-4 py-5 border-b border-zinc-200 dark:border-zinc-800">
+      {/* Logo — gradient accent */}
+      <div className="px-4 py-5 border-b border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-indigo-50/60 to-transparent dark:from-indigo-950/30 dark:to-transparent">
         <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-900 dark:bg-zinc-100 flex-shrink-0">
-            <span className="text-sm font-bold text-zinc-100 dark:text-zinc-900">M</span>
+          <div className="relative flex-shrink-0">
+            <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 blur opacity-40" />
+            <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600">
+              <span className="text-sm font-bold text-white">M</span>
+            </div>
           </div>
           <AnimatePresence>
             {!collapsed && (
@@ -132,21 +135,21 @@ export function Sidebar({ profile }: SidebarProps) {
               className={cn(
                 'relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors group',
                 isActive
-                  ? 'text-zinc-100 dark:text-zinc-900'
+                  ? 'text-white'
                   : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
               )}
             >
               {isActive && (
                 <motion.span
                   layoutId="nav-indicator"
-                  className="absolute inset-0 bg-zinc-900 dark:bg-zinc-100 rounded-lg -z-10"
+                  className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-indigo-500 dark:from-indigo-500 dark:to-indigo-400 rounded-lg -z-10 shadow-sm shadow-indigo-500/30"
                   transition={{ duration: 0.2, ease: 'easeInOut' }}
                 />
               )}
               {!isActive && (
                 <span className="absolute inset-0 rounded-lg bg-zinc-100 dark:bg-zinc-800 opacity-0 group-hover:opacity-100 transition-opacity -z-10" />
               )}
-              <span className="flex-shrink-0">{item.icon}</span>
+              <span className="flex-shrink-0 relative z-10">{item.icon}</span>
               <AnimatePresence>
                 {!collapsed && (
                   <motion.span
@@ -154,7 +157,7 @@ export function Sidebar({ profile }: SidebarProps) {
                     animate={{ opacity: 1, width: 'auto' }}
                     exit={{ opacity: 0, width: 0 }}
                     transition={{ duration: 0.2 }}
-                    className="overflow-hidden whitespace-nowrap"
+                    className="overflow-hidden whitespace-nowrap relative z-10"
                   >
                     {item.label}
                   </motion.span>
@@ -181,8 +184,8 @@ export function Sidebar({ profile }: SidebarProps) {
 
         <div className={cn('flex items-center gap-3 px-1', collapsed && 'justify-center')}>
           <div className="relative flex-shrink-0">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700">
-              <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">{initials}</span>
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800">
+              <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300">{initials}</span>
             </div>
             {/* Pulsing green dot */}
             <span className="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5">
@@ -210,7 +213,7 @@ export function Sidebar({ profile }: SidebarProps) {
           onClick={handleSignOut}
           className={cn(
             'w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-zinc-600 dark:text-zinc-400',
-            'hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950 dark:hover:text-red-400 transition-colors',
+            'hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/60 dark:hover:text-red-400 transition-colors',
             collapsed && 'justify-center px-2'
           )}
         >
@@ -271,10 +274,13 @@ export function Sidebar({ profile }: SidebarProps) {
               transition={{ duration: 0.25, ease: 'easeInOut' }}
               className="fixed left-0 top-0 bottom-0 z-50 flex lg:hidden"
             >
-              <aside className="flex flex-col w-64 min-h-screen bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800">
-                <div className="px-4 py-5 border-b border-zinc-200 dark:border-zinc-800 flex items-center gap-3">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-900 dark:bg-zinc-100">
-                    <span className="text-sm font-bold text-zinc-100 dark:text-zinc-900">M</span>
+              <aside className="flex flex-col w-64 min-h-screen bg-white dark:bg-zinc-950 border-r border-zinc-200 dark:border-zinc-800">
+                <div className="px-4 py-5 border-b border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-indigo-50/60 to-transparent dark:from-indigo-950/30 dark:to-transparent flex items-center gap-3">
+                  <div className="relative flex-shrink-0">
+                    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 blur opacity-40" />
+                    <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600">
+                      <span className="text-sm font-bold text-white">M</span>
+                    </div>
                   </div>
                   <div>
                     <h1 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">The Matrix</h1>
@@ -299,9 +305,9 @@ export function Sidebar({ profile }: SidebarProps) {
                         href={item.href}
                         onClick={() => setMobileOpen(false)}
                         className={cn(
-                          'relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                          'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
                           isActive
-                            ? 'bg-zinc-900 text-zinc-100 dark:bg-zinc-100 dark:text-zinc-900'
+                            ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-sm shadow-indigo-500/30'
                             : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100'
                         )}
                       >
@@ -318,8 +324,8 @@ export function Sidebar({ profile }: SidebarProps) {
                   </div>
                   <div className="flex items-center gap-3 px-1">
                     <div className="relative flex-shrink-0">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700">
-                        <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">{initials}</span>
+                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800">
+                        <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300">{initials}</span>
                       </div>
                       <span className="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
@@ -333,7 +339,7 @@ export function Sidebar({ profile }: SidebarProps) {
                   </div>
                   <button
                     onClick={handleSignOut}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-zinc-600 dark:text-zinc-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950 dark:hover:text-red-400 transition-colors"
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-zinc-600 dark:text-zinc-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/60 dark:hover:text-red-400 transition-colors"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

@@ -2,9 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
 import { EmptyState } from './EmptyState'
-import { cn } from '@/lib/cn'
 
 interface Flavor {
   id: number
@@ -16,6 +14,11 @@ interface Flavor {
 interface FlavorsTableProps {
   flavors: Flavor[]
   stepCounts: Record<number, number>
+}
+
+function formatDate(dateStr: string | null): string {
+  if (!dateStr) return '—'
+  return new Date(dateStr).toLocaleDateString()
 }
 
 export function FlavorsTable({ flavors, stepCounts }: FlavorsTableProps) {
@@ -62,7 +65,7 @@ export function FlavorsTable({ flavors, stepCounts }: FlavorsTableProps) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by slug or description..."
-          className="w-full pl-9 pr-4 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-sm"
+          className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-sm transition-colors"
         />
       </div>
 
@@ -71,67 +74,41 @@ export function FlavorsTable({ flavors, stepCounts }: FlavorsTableProps) {
           No results for &quot;{search}&quot;
         </div>
       ) : (
-        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-zinc-200 dark:border-zinc-800">
-                <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Slug</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Description</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Steps</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Created</th>
-                <th className="px-6 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-              <AnimatePresence>
-                {filtered.map((flavor, index) => (
-                  <motion.tr
-                    key={flavor.id}
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -8 }}
-                    transition={{ duration: 0.2, delay: index * 0.04, ease: 'easeOut' }}
-                    className={cn(
-                      'group hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors',
-                      'border-l-2 border-l-transparent hover:border-l-indigo-500 dark:hover:border-l-indigo-400'
-                    )}
-                  >
-                    <td className="px-6 py-4">
-                      <Link
-                        href={`/flavors/${flavor.id}`}
-                        className="text-sm font-medium text-zinc-900 dark:text-zinc-100 hover:underline"
-                      >
-                        {flavor.slug}
-                      </Link>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-xs truncate">
-                        {flavor.description ?? '—'}
-                      </p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300">
-                        {stepCounts[flavor.id] ?? 0} step{stepCounts[flavor.id] !== 1 ? 's' : ''}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-zinc-400 dark:text-zinc-500">
-                      {flavor.created_datetime_utc
-                        ? new Date(flavor.created_datetime_utc).toLocaleDateString()
-                        : '—'}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <Link
-                        href={`/flavors/${flavor.id}`}
-                        className="text-sm text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
-                      >
-                        View →
-                      </Link>
-                    </td>
-                  </motion.tr>
-                ))}
-              </AnimatePresence>
-            </tbody>
-          </table>
+        /* Card-based list — no motion.tr inside tbody */
+        <div className="space-y-2">
+          {filtered.map((flavor) => (
+            <Link key={flavor.id} href={`/flavors/${flavor.id}`}>
+              <div className="group flex items-center gap-4 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-sm transition-all duration-200 cursor-pointer">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-medium text-zinc-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                      {flavor.slug}
+                    </span>
+                    <span className="text-xs text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full">
+                      {stepCounts[flavor.id] ?? 0} step{stepCounts[flavor.id] !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                  {flavor.description && (
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400 truncate mt-0.5">
+                      {flavor.description}
+                    </p>
+                  )}
+                </div>
+                <span className="text-xs text-zinc-400 dark:text-zinc-500 whitespace-nowrap hidden sm:block">
+                  {formatDate(flavor.created_datetime_utc)}
+                </span>
+                <svg
+                  className="w-4 h-4 text-zinc-400 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors flex-shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </Link>
+          ))}
         </div>
       )}
     </div>

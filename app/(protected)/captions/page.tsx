@@ -42,11 +42,11 @@ function PaginationNumbers({
   }
 
   return (
-    <div className="flex items-center justify-center gap-1 mt-8">
+    <div className="flex items-center justify-center gap-1 mt-8 flex-wrap">
       {page > 1 && (
         <Link
           href={buildUrl(page - 1, flavorId)}
-          className="px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+          className="px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors"
         >
           Previous
         </Link>
@@ -62,8 +62,8 @@ function PaginationNumbers({
             href={buildUrl(p, flavorId)}
             className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
               p === page
-                ? 'bg-zinc-900 dark:bg-zinc-100 text-zinc-100 dark:text-zinc-900'
-                : 'border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
+                ? 'bg-indigo-600 dark:bg-indigo-500 text-white shadow-sm shadow-indigo-500/30'
+                : 'border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:border-indigo-300 dark:hover:border-indigo-700'
             }`}
           >
             {p}
@@ -73,7 +73,7 @@ function PaginationNumbers({
       {page < totalPages && (
         <Link
           href={buildUrl(page + 1, flavorId)}
-          className="px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+          className="px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors"
         >
           Next
         </Link>
@@ -124,17 +124,17 @@ export default async function CaptionsPage({ searchParams }: PageProps) {
           </div>
         </div>
 
-        {/* Filter */}
-        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 mb-6 flex items-center gap-4">
-          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
-            Filter by flavor:
-          </label>
-          <div className="flex gap-2 flex-wrap">
+        {/* Filter — horizontal scroll on mobile to prevent overflow */}
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 mb-6">
+          <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-3">
+            Filter by flavor
+          </p>
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
             <Link
               href={buildUrl(1, null)}
-              className={`relative px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                 !flavorId
-                  ? 'bg-zinc-900 dark:bg-zinc-100 text-zinc-100 dark:text-zinc-900'
+                  ? 'bg-indigo-600 dark:bg-indigo-500 text-white shadow-sm shadow-indigo-500/30'
                   : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
               }`}
             >
@@ -144,9 +144,9 @@ export default async function CaptionsPage({ searchParams }: PageProps) {
               <Link
                 key={f.id}
                 href={buildUrl(1, f.id)}
-                className={`relative px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                   flavorId === f.id
-                    ? 'bg-zinc-900 dark:bg-zinc-100 text-zinc-100 dark:text-zinc-900'
+                    ? 'bg-indigo-600 dark:bg-indigo-500 text-white shadow-sm shadow-indigo-500/30'
                     : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
                 }`}
               >
@@ -177,7 +177,7 @@ export default async function CaptionsPage({ searchParams }: PageProps) {
               return (
                 <div
                   key={caption.id}
-                  className="flex gap-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 transition-all hover:shadow-md hover:-translate-y-0.5 duration-200"
+                  className="flex gap-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 transition-all hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-900 hover:-translate-y-0.5 duration-200"
                 >
                   {/* Image thumbnail */}
                   <div className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800">
@@ -201,11 +201,11 @@ export default async function CaptionsPage({ searchParams }: PageProps) {
                     <p className="text-sm text-zinc-900 dark:text-zinc-100 leading-relaxed">
                       {caption.content ?? '—'}
                     </p>
-                    <div className="flex items-center gap-3 mt-2">
+                    <div className="flex items-center gap-3 mt-2 flex-wrap">
                       {flavor?.slug && (
                         <Link
                           href={buildUrl(1, flavor.id)}
-                          className="inline-flex items-center px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-xs text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+                          className="inline-flex items-center px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800 text-xs text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-950 transition-colors"
                         >
                           {flavor.slug}
                         </Link>

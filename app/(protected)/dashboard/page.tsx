@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase-server'
 import Link from 'next/link'
 import { AnimatedPage } from '@/components/AnimatedPage'
-import { StatCards, QuickActionsCard, CaptionsOverTimeCard } from '@/components/DashboardStats'
+import { StatCard, QuickActionsCard, CaptionsOverTimeCard } from '@/components/DashboardStats'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,7 +19,6 @@ export default async function DashboardPage() {
     .order('created_datetime_utc', { ascending: false })
     .limit(5)
 
-  // Fetch captions over time
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
@@ -43,6 +42,18 @@ export default async function DashboardPage() {
     count,
   }))
 
+  const flavorsIcon = (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+    </svg>
+  )
+
+  const captionsIcon = (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+    </svg>
+  )
+
   return (
     <AnimatedPage>
       <div className="p-8">
@@ -53,11 +64,23 @@ export default async function DashboardPage() {
           </p>
         </div>
 
-        {/* Stats */}
+        {/* Stats grid — each child is a proper element, no fragments */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-          <StatCards
-            flavorCount={flavorCount ?? 0}
-            captionCount={captionCount ?? 0}
+          <StatCard
+            label="Total Flavors"
+            value={flavorCount ?? 0}
+            href="/flavors"
+            linkLabel="View all flavors →"
+            delay={0}
+            icon={flavorsIcon}
+          />
+          <StatCard
+            label="Total Captions"
+            value={captionCount ?? 0}
+            href="/captions"
+            linkLabel="View all captions →"
+            delay={0.08}
+            icon={captionsIcon}
           />
           <QuickActionsCard />
           <CaptionsOverTimeCard data={captionsOverTime} />
@@ -69,16 +92,16 @@ export default async function DashboardPage() {
             <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">Recent Flavors</h2>
             <Link
               href="/flavors"
-              className="text-sm text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
+              className="text-sm text-indigo-500 dark:text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors"
             >
-              View all
+              View all →
             </Link>
           </div>
           <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
             {recentFlavors?.length === 0 && (
               <div className="px-6 py-8 text-center text-zinc-400 dark:text-zinc-500">
                 No flavors yet.{' '}
-                <Link href="/flavors/new" className="text-zinc-600 dark:text-zinc-300 underline">
+                <Link href="/flavors/new" className="text-indigo-500 dark:text-indigo-400 hover:underline">
                   Create your first flavor
                 </Link>
               </div>
@@ -87,10 +110,10 @@ export default async function DashboardPage() {
               <Link
                 key={flavor.id}
                 href={`/flavors/${flavor.id}`}
-                className="flex items-center gap-4 px-6 py-4 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                className="flex items-center gap-4 px-6 py-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors group"
               >
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate">
+                  <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                     {flavor.slug}
                   </p>
                   {flavor.description && (
@@ -104,6 +127,9 @@ export default async function DashboardPage() {
                     ? new Date(flavor.created_datetime_utc).toLocaleDateString()
                     : '—'}
                 </span>
+                <svg className="w-4 h-4 text-zinc-300 dark:text-zinc-600 group-hover:text-zinc-500 dark:group-hover:text-zinc-400 transition-colors flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </Link>
             ))}
           </div>

@@ -15,7 +15,6 @@ export default async function FlavorsPage() {
 
   const flavorIds = flavors?.map((f) => f.id) ?? []
 
-  // Fetch step counts per flavor
   const stepCounts: Record<number, number> = {}
   if (flavorIds.length > 0) {
     const { data: steps } = await supabase
@@ -40,7 +39,7 @@ export default async function FlavorsPage() {
           </div>
           <Link
             href="/flavors/new"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-zinc-100 dark:text-zinc-900 text-sm font-medium hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white text-sm font-medium shadow-sm shadow-indigo-500/30 hover:shadow-md hover:shadow-indigo-500/40 transition-all duration-200 hover:-translate-y-0.5"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
