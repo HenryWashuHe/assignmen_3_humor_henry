@@ -1,8 +1,12 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase-browser'
 import { HumorFlavor, StudyImageSet, Image } from '@/lib/types'
+import { ProgressStepper } from '@/components/ProgressStepper'
+import { cn } from '@/lib/cn'
 
 const API_BASE = 'https://api.almostcrackd.ai'
 
@@ -20,6 +24,26 @@ interface GeneratedCaption {
   [key: string]: unknown
 }
 
+const PIPELINE_STEPS = ['Upload Image', 'Process', 'Generate Captions', 'Done']
+
+function getStepIndex(stage: LoadingStage): number {
+  switch (stage) {
+    case 'idle': return -1
+    case 'uploading': return 0
+    case 'processing': return 2
+    case 'done': return 3
+    case 'error': return 0
+    default: return -1
+  }
+}
+
+function getStepperStatus(stage: LoadingStage): 'idle' | 'loading' | 'success' | 'error' {
+  if (stage === 'done') return 'success'
+  if (stage === 'error') return 'error'
+  if (stage === 'uploading' || stage === 'processing') return 'loading'
+  return 'idle'
+}
+
 export function TestFlavorClient({ flavors, imageSets }: TestFlavorClientProps) {
   const [flavorId, setFlavorId] = useState<string>(flavors[0]?.id?.toString() ?? '')
   const [imageSource, setImageSource] = useState<ImageSource>('upload')
@@ -28,6 +52,7 @@ export function TestFlavorClient({ flavors, imageSets }: TestFlavorClientProps) 
   const [selectedImageId, setSelectedImageId] = useState<string>('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
   const [stage, setStage] = useState<LoadingStage>('idle')
   const [stageMessage, setStageMessage] = useState('')
   const [captions, setCaptions] = useState<GeneratedCaption[]>([])
@@ -47,7 +72,6 @@ export function TestFlavorClient({ flavors, imageSets }: TestFlavorClientProps) 
     setSelectedSetId(setId)
     setSelectedImageId('')
     setSetImages([])
-
     if (!setId) return
 
     const supabase = createClient()
@@ -66,12 +90,43 @@ export function TestFlavorClient({ flavors, imageSets }: TestFlavorClientProps) 
     setSetImages(images)
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+  const setFile = (file: File) => {
     setSelectedFile(file)
     const url = URL.createObjectURL(file)
     setPreviewUrl(url)
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) setFile(file)
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+    const file = e.dataTransfer.files?.[0]
+    if (file && file.type.startsWith('image/')) {
+      setFile(file)
+    }
+  }
+
+  const handleCopy = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      toast.success('Copied to clipboard')
+    } catch {
+      toast.error('Failed to copy')
+    }
   }
 
   const handleGenerate = async () => {
@@ -133,7 +188,6 @@ export function TestFlavorClient({ flavors, imageSets }: TestFlavorClientProps) 
         const regData = await regRes.json()
         imageId = regData.imageId
       } else {
-        // Study set image
         if (!selectedImageId) {
           setError('Please select an image from the study set')
           setStage('idle')
@@ -167,9 +221,22 @@ export function TestFlavorClient({ flavors, imageSets }: TestFlavorClientProps) 
   }
 
   const isLoading = stage === 'uploading' || stage === 'processing'
+  const currentStep = getStepIndex(stage)
+  const stepperStatus = getStepperStatus(stage)
 
   return (
     <div className="max-w-3xl space-y-6">
+      {/* Progress Stepper */}
+      {stage !== 'idle' && (
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5">
+          <ProgressStepper
+            steps={PIPELINE_STEPS}
+            currentStep={currentStep}
+            status={stepperStatus}
+          />
+        </div>
+      )}
+
       {/* Configuration Panel */}
       <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-5">
         <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">Configuration</h2>
@@ -183,7 +250,7 @@ export function TestFlavorClient({ flavors, imageSets }: TestFlavorClientProps) 
             value={flavorId}
             onChange={(e) => setFlavorId(e.target.value)}
             disabled={isLoading}
-            className="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm disabled:opacity-60"
+            className="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-sm disabled:opacity-60"
           >
             <option value="">Select a flavor...</option>
             {flavors.map((f) => (
@@ -202,11 +269,12 @@ export function TestFlavorClient({ flavors, imageSets }: TestFlavorClientProps) 
               type="button"
               onClick={() => setImageSource('upload')}
               disabled={isLoading}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-medium border transition-colors ${
+              className={cn(
+                'flex-1 py-2.5 rounded-lg text-sm font-medium border transition-colors disabled:opacity-60',
                 imageSource === 'upload'
                   ? 'bg-zinc-900 dark:bg-zinc-100 text-zinc-100 dark:text-zinc-900 border-transparent'
                   : 'border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
-              } disabled:opacity-60`}
+              )}
             >
               Upload Image
             </button>
@@ -214,18 +282,19 @@ export function TestFlavorClient({ flavors, imageSets }: TestFlavorClientProps) 
               type="button"
               onClick={() => setImageSource('study-set')}
               disabled={isLoading}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-medium border transition-colors ${
+              className={cn(
+                'flex-1 py-2.5 rounded-lg text-sm font-medium border transition-colors disabled:opacity-60',
                 imageSource === 'study-set'
                   ? 'bg-zinc-900 dark:bg-zinc-100 text-zinc-100 dark:text-zinc-900 border-transparent'
                   : 'border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
-              } disabled:opacity-60`}
+              )}
             >
               Study Image Set
             </button>
           </div>
         </div>
 
-        {/* Upload file */}
+        {/* Upload file with drag-and-drop */}
         {imageSource === 'upload' && (
           <div>
             <input
@@ -238,24 +307,36 @@ export function TestFlavorClient({ flavors, imageSets }: TestFlavorClientProps) 
             />
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-xl p-6 text-center cursor-pointer hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors"
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={cn(
+                'border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all duration-200',
+                isDragging
+                  ? 'border-indigo-400 dark:border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 ring-4 ring-indigo-400/20'
+                  : 'border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600'
+              )}
             >
               {previewUrl ? (
                 <div className="space-y-2">
-                  <img
+                  <motion.img
+                    initial={{ opacity: 0, scale: 0.92 }}
+                    animate={{ opacity: 1, scale: 1 }}
                     src={previewUrl}
                     alt="Preview"
                     className="max-h-48 mx-auto rounded-lg object-contain"
                   />
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">{selectedFile?.name}</p>
-                  <p className="text-xs text-blue-600 dark:text-blue-400">Click to change</p>
+                  <p className="text-xs text-indigo-600 dark:text-indigo-400">Click to change</p>
                 </div>
               ) : (
                 <div className="space-y-2">
                   <svg className="w-8 h-8 mx-auto text-zinc-300 dark:text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400">Click to upload an image</p>
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                    {isDragging ? 'Drop your image here' : 'Click or drag & drop an image'}
+                  </p>
                   <p className="text-xs text-zinc-400 dark:text-zinc-500">PNG, JPG, GIF, WebP supported</p>
                 </div>
               )}
@@ -274,7 +355,7 @@ export function TestFlavorClient({ flavors, imageSets }: TestFlavorClientProps) 
                 value={selectedSetId}
                 onChange={(e) => handleSetChange(e.target.value)}
                 disabled={isLoading}
-                className="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm disabled:opacity-60"
+                className="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-sm disabled:opacity-60"
               >
                 <option value="">Select a set...</option>
                 {imageSets.map((s) => (
@@ -295,11 +376,12 @@ export function TestFlavorClient({ flavors, imageSets }: TestFlavorClientProps) 
                       type="button"
                       onClick={() => setSelectedImageId(img.id)}
                       disabled={isLoading}
-                      className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-colors ${
+                      className={cn(
+                        'relative aspect-square rounded-lg overflow-hidden border-2 transition-colors disabled:opacity-60',
                         selectedImageId === img.id
-                          ? 'border-zinc-900 dark:border-zinc-100'
+                          ? 'border-indigo-500 dark:border-indigo-400'
                           : 'border-transparent hover:border-zinc-400 dark:hover:border-zinc-600'
-                      } disabled:opacity-60`}
+                      )}
                     >
                       {img.url ? (
                         <img
@@ -373,21 +455,35 @@ export function TestFlavorClient({ flavors, imageSets }: TestFlavorClientProps) 
             Generated Captions ({captions.length})
           </h2>
           <div className="space-y-3">
-            {captions.map((caption, index) => (
-              <div
-                key={caption.id ?? index}
-                className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700"
-              >
-                <div className="flex items-start gap-3">
-                  <span className="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full bg-zinc-200 dark:bg-zinc-700 text-xs font-semibold text-zinc-600 dark:text-zinc-300">
-                    {index + 1}
-                  </span>
-                  <p className="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed">
-                    {caption.content ?? JSON.stringify(caption, null, 2)}
-                  </p>
-                </div>
-              </div>
-            ))}
+            <AnimatePresence>
+              {captions.map((caption, index) => (
+                <motion.div
+                  key={caption.id ?? index}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2, delay: index * 0.06 }}
+                  className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 group relative"
+                >
+                  <div className="flex items-start gap-3 pr-10">
+                    <span className="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-950 text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+                      {index + 1}
+                    </span>
+                    <p className="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed">
+                      {caption.content ?? JSON.stringify(caption, null, 2)}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleCopy(caption.content ?? JSON.stringify(caption))}
+                    className="absolute top-3 right-3 p-1.5 rounded-md text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors opacity-0 group-hover:opacity-100"
+                    aria-label="Copy caption"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         </div>
       )}

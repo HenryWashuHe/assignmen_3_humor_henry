@@ -1,7 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { toast } from 'sonner'
 import { HumorFlavorStep, LlmModel, LlmInputType, LlmOutputType, HumorFlavorStepType, CreateStepPayload } from '@/lib/types'
+import { cn } from '@/lib/cn'
 
 interface StepFormProps {
   flavorId: number
@@ -34,16 +36,23 @@ export function StepForm({
   const [stepTypeId, setStepTypeId] = useState<string>(String(step?.humor_flavor_step_type_id ?? stepTypes[0]?.id ?? ''))
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [shaking, setShaking] = useState(false)
 
   const selectedModel = models.find((m) => String(m.id) === modelId)
   const isTemperatureSupported = selectedModel?.is_temperature_supported ?? false
 
   const isEditing = Boolean(step?.id)
 
+  const triggerShake = () => {
+    setShaking(true)
+    setTimeout(() => setShaking(false), 400)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!modelId || !inputTypeId || !outputTypeId || !stepTypeId) {
       setError('All select fields are required')
+      triggerShake()
       return
     }
 
@@ -78,16 +87,34 @@ export function StepForm({
         throw new Error(data.error ?? 'Failed to save step')
       }
 
+      toast.success(isEditing ? 'Step updated' : 'Step created')
       onSuccess()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
+      triggerShake()
     } finally {
       setLoading(false)
     }
   }
 
+  const inputClass = cn(
+    'w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700',
+    'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100',
+    'focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400',
+    'text-sm transition-shadow'
+  )
+
+  const promptClass = cn(
+    inputClass,
+    'font-mono text-xs bg-zinc-50 dark:bg-zinc-900/80 resize-y',
+    'placeholder-zinc-400 dark:placeholder-zinc-600'
+  )
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form
+      onSubmit={handleSubmit}
+      className={cn('space-y-4', shaking && 'animate-shake')}
+    >
       {error && (
         <div className="rounded-lg bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 p-3">
           <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
@@ -103,7 +130,7 @@ export function StepForm({
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Brief description of this step"
-          className="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm"
+          className={inputClass}
         />
       </div>
 
@@ -115,7 +142,7 @@ export function StepForm({
           <select
             value={modelId}
             onChange={(e) => setModelId(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm"
+            className={inputClass}
             required
           >
             <option value="">Select model...</option>
@@ -137,7 +164,7 @@ export function StepForm({
               step="0.1"
               value={temperature}
               onChange={(e) => setTemperature(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm"
+              className={inputClass}
             />
           </div>
         )}
@@ -151,7 +178,7 @@ export function StepForm({
           <select
             value={inputTypeId}
             onChange={(e) => setInputTypeId(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm"
+            className={inputClass}
             required
           >
             <option value="">Select...</option>
@@ -168,7 +195,7 @@ export function StepForm({
           <select
             value={outputTypeId}
             onChange={(e) => setOutputTypeId(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm"
+            className={inputClass}
             required
           >
             <option value="">Select...</option>
@@ -185,7 +212,7 @@ export function StepForm({
           <select
             value={stepTypeId}
             onChange={(e) => setStepTypeId(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm"
+            className={inputClass}
             required
           >
             <option value="">Select...</option>
@@ -205,7 +232,7 @@ export function StepForm({
           onChange={(e) => setSystemPrompt(e.target.value)}
           placeholder="System-level instructions for the LLM..."
           rows={4}
-          className="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm font-mono resize-y"
+          className={promptClass}
         />
       </div>
 
@@ -218,7 +245,7 @@ export function StepForm({
           onChange={(e) => setUserPrompt(e.target.value)}
           placeholder="User-facing prompt template..."
           rows={4}
-          className="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm font-mono resize-y"
+          className={promptClass}
         />
       </div>
 
@@ -226,14 +253,23 @@ export function StepForm({
         <button
           type="submit"
           disabled={loading}
-          className="flex-1 px-4 py-2.5 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-zinc-100 dark:text-zinc-900 text-sm font-medium hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-zinc-100 dark:text-zinc-900 text-sm font-medium hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          {loading ? 'Saving...' : isEditing ? 'Save Changes' : 'Add Step'}
+          {loading ? (
+            <>
+              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              Saving...
+            </>
+          ) : isEditing ? 'Save Changes' : 'Add Step'}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+          disabled={loading}
+          className="px-4 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors disabled:opacity-60"
         >
           Cancel
         </button>

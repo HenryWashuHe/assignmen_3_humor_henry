@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase-server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { StepList } from '@/components/StepList'
+import { StepPipelineViz } from '@/components/StepPipelineViz'
+import { AnimatedPage } from '@/components/AnimatedPage'
 import { FlavorDetailClient } from './FlavorDetailClient'
 
 export const dynamic = 'force-dynamic'
@@ -44,32 +46,46 @@ export default async function FlavorDetailPage({ params }: PageProps) {
 
   if (flavorError || !flavor) notFound()
 
+  const pipelineSteps = (steps ?? []).map((s) => ({
+    id: s.id,
+    order_by: s.order_by,
+    description: s.description,
+  }))
+
   return (
-    <div className="p-8">
-      <div className="mb-6">
-        <Link
-          href="/flavors"
-          className="inline-flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors mb-4"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Back to Flavors
-        </Link>
-      </div>
+    <AnimatedPage>
+      <div className="p-8">
+        <div className="mb-6">
+          <Link
+            href="/flavors"
+            className="inline-flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors mb-4"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Flavors
+          </Link>
+        </div>
 
-      <FlavorDetailClient flavor={flavor} />
+        <FlavorDetailClient flavor={flavor} />
 
-      <div className="mt-8">
-        <StepList
-          flavorId={flavorId}
-          initialSteps={steps ?? []}
-          models={models ?? []}
-          inputTypes={inputTypes ?? []}
-          outputTypes={outputTypes ?? []}
-          stepTypes={stepTypes ?? []}
-        />
+        {pipelineSteps.length > 0 && (
+          <div className="mt-6">
+            <StepPipelineViz steps={pipelineSteps} />
+          </div>
+        )}
+
+        <div className="mt-8">
+          <StepList
+            flavorId={flavorId}
+            initialSteps={steps ?? []}
+            models={models ?? []}
+            inputTypes={inputTypes ?? []}
+            outputTypes={outputTypes ?? []}
+            stepTypes={stepTypes ?? []}
+          />
+        </div>
       </div>
-    </div>
+    </AnimatedPage>
   )
 }

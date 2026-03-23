@@ -2,9 +2,12 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { ThemeToggle } from './ThemeToggle'
 import { createClient } from '@/lib/supabase-browser'
 import { Profile } from '@/lib/types'
+import { cn } from '@/lib/cn'
 
 const navItems = [
   {
@@ -52,6 +55,8 @@ interface SidebarProps {
 export function Sidebar({ profile }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
+  const [collapsed, setCollapsed] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   const handleSignOut = async () => {
     const supabase = createClient()
@@ -72,23 +77,50 @@ export function Sidebar({ profile }: SidebarProps) {
 
   const role = profile?.is_superadmin ? 'Superadmin' : 'Matrix Admin'
 
-  return (
-    <aside className="flex flex-col w-64 min-h-screen bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800">
+  const sidebarContent = (
+    <motion.aside
+      animate={{ width: collapsed ? 72 : 256 }}
+      transition={{ duration: 0.25, ease: 'easeInOut' }}
+      className="flex flex-col min-h-screen bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 overflow-hidden flex-shrink-0"
+    >
       {/* Logo */}
-      <div className="px-6 py-5 border-b border-zinc-200 dark:border-zinc-800">
+      <div className="px-4 py-5 border-b border-zinc-200 dark:border-zinc-800">
         <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-900 dark:bg-zinc-100">
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-900 dark:bg-zinc-100 flex-shrink-0">
             <span className="text-sm font-bold text-zinc-100 dark:text-zinc-900">M</span>
           </div>
-          <div>
-            <h1 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">The Matrix</h1>
-            <p className="text-xs text-zinc-400 dark:text-zinc-500">Humor Flavors</p>
-          </div>
+          <AnimatePresence>
+            {!collapsed && (
+              <motion.div
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: 'auto' }}
+                exit={{ opacity: 0, width: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden"
+              >
+                <h1 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 whitespace-nowrap">The Matrix</h1>
+                <p className="text-xs text-zinc-400 dark:text-zinc-500 whitespace-nowrap">Humor Flavors</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <button
+            onClick={() => setCollapsed((c) => !c)}
+            className="ml-auto p-1 rounded text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex-shrink-0 hidden lg:flex"
+            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              {collapsed ? (
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11 19l-7-7 7-7M19 19l-7-7 7-7" />
+              )}
+            </svg>
+          </button>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1">
+      <nav className="flex-1 px-2 py-4 space-y-1 relative">
         {navItems.map((item) => {
           const isActive =
             pathname === item.href || pathname.startsWith(`${item.href}/`)
@@ -96,46 +128,224 @@ export function Sidebar({ profile }: SidebarProps) {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+              onClick={() => setMobileOpen(false)}
+              className={cn(
+                'relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors group',
                 isActive
-                  ? 'bg-zinc-900 text-zinc-100 dark:bg-zinc-100 dark:text-zinc-900'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100'
-              }`}
+                  ? 'text-zinc-100 dark:text-zinc-900'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
+              )}
             >
-              {item.icon}
-              {item.label}
+              {isActive && (
+                <motion.span
+                  layoutId="nav-indicator"
+                  className="absolute inset-0 bg-zinc-900 dark:bg-zinc-100 rounded-lg -z-10"
+                  transition={{ duration: 0.2, ease: 'easeInOut' }}
+                />
+              )}
+              {!isActive && (
+                <span className="absolute inset-0 rounded-lg bg-zinc-100 dark:bg-zinc-800 opacity-0 group-hover:opacity-100 transition-opacity -z-10" />
+              )}
+              <span className="flex-shrink-0">{item.icon}</span>
+              <AnimatePresence>
+                {!collapsed && (
+                  <motion.span
+                    initial={{ opacity: 0, width: 0 }}
+                    animate={{ opacity: 1, width: 'auto' }}
+                    exit={{ opacity: 0, width: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden whitespace-nowrap"
+                  >
+                    {item.label}
+                  </motion.span>
+                )}
+              </AnimatePresence>
             </Link>
           )
         })}
       </nav>
 
       {/* Footer */}
-      <div className="px-3 py-4 border-t border-zinc-200 dark:border-zinc-800 space-y-3">
-        <div className="flex items-center justify-between px-1">
-          <span className="text-xs text-zinc-500 dark:text-zinc-400">Theme</span>
-          <ThemeToggle />
-        </div>
+      <div className="px-2 py-4 border-t border-zinc-200 dark:border-zinc-800 space-y-3">
+        {!collapsed && (
+          <div className="flex items-center justify-between px-1">
+            <span className="text-xs text-zinc-500 dark:text-zinc-400">Theme</span>
+            <ThemeToggle />
+          </div>
+        )}
+        {collapsed && (
+          <div className="flex justify-center">
+            <ThemeToggle />
+          </div>
+        )}
 
-        <div className="flex items-center gap-3 px-1">
-          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 flex-shrink-0">
-            <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">{initials}</span>
+        <div className={cn('flex items-center gap-3 px-1', collapsed && 'justify-center')}>
+          <div className="relative flex-shrink-0">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700">
+              <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">{initials}</span>
+            </div>
+            {/* Pulsing green dot */}
+            <span className="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500" />
+            </span>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-zinc-900 dark:text-zinc-100 truncate">{displayName}</p>
-            <p className="text-xs text-zinc-400 dark:text-zinc-500">{role}</p>
-          </div>
+          <AnimatePresence>
+            {!collapsed && (
+              <motion.div
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: 'auto' }}
+                exit={{ opacity: 0, width: 0 }}
+                transition={{ duration: 0.2 }}
+                className="flex-1 min-w-0 overflow-hidden"
+              >
+                <p className="text-xs font-medium text-zinc-900 dark:text-zinc-100 truncate">{displayName}</p>
+                <p className="text-xs text-zinc-400 dark:text-zinc-500 whitespace-nowrap">{role}</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         <button
           onClick={handleSignOut}
-          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-zinc-600 dark:text-zinc-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950 dark:hover:text-red-400 transition-colors"
+          className={cn(
+            'w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-zinc-600 dark:text-zinc-400',
+            'hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950 dark:hover:text-red-400 transition-colors',
+            collapsed && 'justify-center px-2'
+          )}
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
-          Sign Out
+          <AnimatePresence>
+            {!collapsed && (
+              <motion.span
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: 'auto' }}
+                exit={{ opacity: 0, width: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden whitespace-nowrap"
+              >
+                Sign Out
+              </motion.span>
+            )}
+          </AnimatePresence>
         </button>
       </div>
-    </aside>
+    </motion.aside>
+  )
+
+  return (
+    <>
+      {/* Mobile hamburger */}
+      <button
+        onClick={() => setMobileOpen(true)}
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm"
+        aria-label="Open menu"
+      >
+        <svg className="w-5 h-5 text-zinc-700 dark:text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+
+      {/* Desktop sidebar */}
+      <div className="hidden lg:flex">
+        {sidebarContent}
+      </div>
+
+      {/* Mobile sidebar overlay */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+              onClick={() => setMobileOpen(false)}
+            />
+            <motion.div
+              initial={{ x: -280 }}
+              animate={{ x: 0 }}
+              exit={{ x: -280 }}
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
+              className="fixed left-0 top-0 bottom-0 z-50 flex lg:hidden"
+            >
+              <aside className="flex flex-col w-64 min-h-screen bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800">
+                <div className="px-4 py-5 border-b border-zinc-200 dark:border-zinc-800 flex items-center gap-3">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-900 dark:bg-zinc-100">
+                    <span className="text-sm font-bold text-zinc-100 dark:text-zinc-900">M</span>
+                  </div>
+                  <div>
+                    <h1 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">The Matrix</h1>
+                    <p className="text-xs text-zinc-400 dark:text-zinc-500">Humor Flavors</p>
+                  </div>
+                  <button
+                    onClick={() => setMobileOpen(false)}
+                    className="ml-auto p-1 rounded text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <nav className="flex-1 px-2 py-4 space-y-1 relative">
+                  {navItems.map((item) => {
+                    const isActive =
+                      pathname === item.href || pathname.startsWith(`${item.href}/`)
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setMobileOpen(false)}
+                        className={cn(
+                          'relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                          isActive
+                            ? 'bg-zinc-900 text-zinc-100 dark:bg-zinc-100 dark:text-zinc-900'
+                            : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100'
+                        )}
+                      >
+                        {item.icon}
+                        {item.label}
+                      </Link>
+                    )
+                  })}
+                </nav>
+                <div className="px-2 py-4 border-t border-zinc-200 dark:border-zinc-800 space-y-3">
+                  <div className="flex items-center justify-between px-1">
+                    <span className="text-xs text-zinc-500 dark:text-zinc-400">Theme</span>
+                    <ThemeToggle />
+                  </div>
+                  <div className="flex items-center gap-3 px-1">
+                    <div className="relative flex-shrink-0">
+                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700">
+                        <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">{initials}</span>
+                      </div>
+                      <span className="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500" />
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-zinc-900 dark:text-zinc-100 truncate">{displayName}</p>
+                      <p className="text-xs text-zinc-400 dark:text-zinc-500">{role}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-zinc-600 dark:text-zinc-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950 dark:hover:text-red-400 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Sign Out
+                  </button>
+                </div>
+              </aside>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   )
 }

@@ -9,6 +9,8 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  DragStartEvent,
+  DragOverlay,
 } from '@dnd-kit/core'
 import {
   arrayMove,
@@ -18,22 +20,26 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { motion, AnimatePresence } from 'framer-motion'
+import { toast } from 'sonner'
 import { HumorFlavorStep, LlmModel, LlmInputType, LlmOutputType, HumorFlavorStepType } from '@/lib/types'
 import { StepForm } from './StepForm'
 import { DeleteConfirm } from './DeleteConfirm'
+import { cn } from '@/lib/cn'
 
-interface SortableStepItemProps {
+interface StepItemContentProps {
   step: HumorFlavorStep
   models: LlmModel[]
   inputTypes: LlmInputType[]
   outputTypes: LlmOutputType[]
   stepTypes: HumorFlavorStepType[]
-  flavorId: number
   onEdit: (step: HumorFlavorStep) => void
   onDelete: (step: HumorFlavorStep) => void
+  isDragging?: boolean
+  dragHandleProps?: Record<string, unknown>
 }
 
-function SortableStepItem({
+function StepItemContent({
   step,
   models,
   inputTypes,
@@ -41,22 +47,9 @@ function SortableStepItem({
   stepTypes,
   onEdit,
   onDelete,
-}: SortableStepItemProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: step.id })
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  }
-
+  isDragging = false,
+  dragHandleProps,
+}: StepItemContentProps) {
   const modelName = models.find((m) => m.id === step.llm_model_id)?.name ?? '—'
   const inputType = inputTypes.find((t) => t.id === step.llm_input_type_id)?.slug ?? '—'
   const outputType = outputTypes.find((t) => t.id === step.llm_output_type_id)?.slug ?? '—'
@@ -64,16 +57,14 @@ function SortableStepItem({
 
   return (
     <div
-      ref={setNodeRef}
-      style={style}
-      className={`flex items-start gap-3 p-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 ${
-        isDragging ? 'shadow-2xl z-50' : ''
-      }`}
+      className={cn(
+        'flex items-start gap-3 p-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 transition-shadow',
+        isDragging && 'shadow-2xl ring-1 ring-indigo-400 dark:ring-indigo-600 scale-[1.02]'
+      )}
     >
       {/* Drag handle */}
       <button
-        {...attributes}
-        {...listeners}
+        {...(dragHandleProps ?? {})}
         className="mt-0.5 text-zinc-300 dark:text-zinc-600 hover:text-zinc-500 dark:hover:text-zinc-400 cursor-grab active:cursor-grabbing touch-none flex-shrink-0"
         aria-label="Drag to reorder"
       >
@@ -83,8 +74,8 @@ function SortableStepItem({
       </button>
 
       {/* Order badge */}
-      <div className="flex-shrink-0 w-7 h-7 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-        <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">{step.order_by}</span>
+      <div className="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-50 dark:bg-indigo-950 border border-indigo-200 dark:border-indigo-800 flex items-center justify-center">
+        <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">{step.order_by}</span>
       </div>
 
       {/* Content */}
@@ -156,6 +147,58 @@ function SortableStepItem({
   )
 }
 
+interface SortableStepItemProps {
+  step: HumorFlavorStep
+  models: LlmModel[]
+  inputTypes: LlmInputType[]
+  outputTypes: LlmOutputType[]
+  stepTypes: HumorFlavorStepType[]
+  flavorId: number
+  onEdit: (step: HumorFlavorStep) => void
+  onDelete: (step: HumorFlavorStep) => void
+}
+
+function SortableStepItem({
+  step,
+  models,
+  inputTypes,
+  outputTypes,
+  stepTypes,
+  onEdit,
+  onDelete,
+}: SortableStepItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: step.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.3 : 1,
+  }
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <StepItemContent
+        step={step}
+        models={models}
+        inputTypes={inputTypes}
+        outputTypes={outputTypes}
+        stepTypes={stepTypes}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        isDragging={false}
+        dragHandleProps={{ ...attributes, ...listeners }}
+      />
+    </div>
+  )
+}
+
 interface StepListProps {
   flavorId: number
   initialSteps: HumorFlavorStep[]
@@ -177,7 +220,7 @@ export function StepList({
   const [showAddForm, setShowAddForm] = useState(false)
   const [editingStep, setEditingStep] = useState<HumorFlavorStep | null>(null)
   const [deletingStep, setDeletingStep] = useState<HumorFlavorStep | null>(null)
-  const [reorderError, setReorderError] = useState<string | null>(null)
+  const [activeId, setActiveId] = useState<number | null>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -186,7 +229,14 @@ export function StepList({
     })
   )
 
+  const activeStep = activeId ? steps.find((s) => s.id === activeId) : null
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as number)
+  }
+
   const handleDragEnd = async (event: DragEndEvent) => {
+    setActiveId(null)
     const { active, over } = event
     if (!over || active.id === over.id) return
 
@@ -200,7 +250,6 @@ export function StepList({
     setSteps(reordered)
 
     try {
-      setReorderError(null)
       const response = await fetch(`/api/flavors/${flavorId}/steps/reorder`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -213,9 +262,10 @@ export function StepList({
         const data = await response.json()
         throw new Error(data.error ?? 'Failed to save new order')
       }
+
+      toast.success('Steps reordered')
     } catch (err) {
-      setReorderError(err instanceof Error ? err.message : 'Reorder failed')
-      // Revert on failure
+      toast.error(err instanceof Error ? err.message : 'Reorder failed')
       setSteps(initialSteps)
     }
   }
@@ -271,42 +321,52 @@ export function StepList({
         )}
       </div>
 
-      {reorderError && (
-        <div className="rounded-lg bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 p-3">
-          <p className="text-sm text-red-700 dark:text-red-300">{reorderError}</p>
-        </div>
-      )}
+      <AnimatePresence>
+        {showAddForm && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5 overflow-hidden"
+          >
+            <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-4">Add New Step</h3>
+            <StepForm
+              flavorId={flavorId}
+              models={models}
+              inputTypes={inputTypes}
+              outputTypes={outputTypes}
+              stepTypes={stepTypes}
+              onSuccess={handleAddSuccess}
+              onCancel={() => setShowAddForm(false)}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {showAddForm && (
-        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5">
-          <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-4">Add New Step</h3>
-          <StepForm
-            flavorId={flavorId}
-            models={models}
-            inputTypes={inputTypes}
-            outputTypes={outputTypes}
-            stepTypes={stepTypes}
-            onSuccess={handleAddSuccess}
-            onCancel={() => setShowAddForm(false)}
-          />
-        </div>
-      )}
-
-      {editingStep && (
-        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5">
-          <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-4">Edit Step</h3>
-          <StepForm
-            flavorId={flavorId}
-            step={editingStep}
-            models={models}
-            inputTypes={inputTypes}
-            outputTypes={outputTypes}
-            stepTypes={stepTypes}
-            onSuccess={handleEditSuccess}
-            onCancel={() => setEditingStep(null)}
-          />
-        </div>
-      )}
+      <AnimatePresence>
+        {editingStep && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5 overflow-hidden"
+          >
+            <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-4">Edit Step</h3>
+            <StepForm
+              flavorId={flavorId}
+              step={editingStep}
+              models={models}
+              inputTypes={inputTypes}
+              outputTypes={outputTypes}
+              stepTypes={stepTypes}
+              onSuccess={handleEditSuccess}
+              onCancel={() => setEditingStep(null)}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {steps.length === 0 && !showAddForm ? (
         <div className="text-center py-12 text-zinc-400 dark:text-zinc-500 bg-white dark:bg-zinc-900 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700">
@@ -319,6 +379,7 @@ export function StepList({
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
           <SortableContext
@@ -326,31 +387,58 @@ export function StepList({
             strategy={verticalListSortingStrategy}
           >
             <div className="space-y-2">
-              {steps.map((step) => (
-                <SortableStepItem
-                  key={step.id}
-                  step={step}
-                  models={models}
-                  inputTypes={inputTypes}
-                  outputTypes={outputTypes}
-                  stepTypes={stepTypes}
-                  flavorId={flavorId}
-                  onEdit={setEditingStep}
-                  onDelete={setDeletingStep}
-                />
-              ))}
+              <AnimatePresence>
+                {steps.map((step) => (
+                  <motion.div
+                    key={step.id}
+                    layout
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <SortableStepItem
+                      step={step}
+                      models={models}
+                      inputTypes={inputTypes}
+                      outputTypes={outputTypes}
+                      stepTypes={stepTypes}
+                      flavorId={flavorId}
+                      onEdit={setEditingStep}
+                      onDelete={setDeletingStep}
+                    />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
           </SortableContext>
+
+          <DragOverlay>
+            {activeStep ? (
+              <StepItemContent
+                step={activeStep}
+                models={models}
+                inputTypes={inputTypes}
+                outputTypes={outputTypes}
+                stepTypes={stepTypes}
+                onEdit={() => {}}
+                onDelete={() => {}}
+                isDragging={true}
+              />
+            ) : null}
+          </DragOverlay>
         </DndContext>
       )}
 
-      {deletingStep && (
-        <DeleteConfirm
-          label={deletingStep.description ?? `Step ${deletingStep.order_by}`}
-          onConfirm={handleDeleteConfirm}
-          onCancel={() => setDeletingStep(null)}
-        />
-      )}
+      <AnimatePresence>
+        {deletingStep && (
+          <DeleteConfirm
+            label={deletingStep.description ?? `Step ${deletingStep.order_by}`}
+            onConfirm={handleDeleteConfirm}
+            onCancel={() => setDeletingStep(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
