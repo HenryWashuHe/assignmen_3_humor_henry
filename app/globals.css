@@ -137,6 +137,14 @@ a {
   animation: float 3s ease-in-out infinite;
 }
 
+/* Button press feedback */
+.btn-press {
+  transition: transform 100ms ease;
+}
+.btn-press:active {
+  transform: scale(0.97);
+}
+
 /* Shimmer skeleton */
 .skeleton-shimmer {
   background: linear-gradient(

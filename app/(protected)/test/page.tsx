@@ -4,7 +4,12 @@ import { TestFlavorClient } from './TestFlavorClient'
 
 export const dynamic = 'force-dynamic'
 
-export default async function TestPage() {
+interface PageProps {
+  searchParams: Promise<{ flavor?: string }>
+}
+
+export default async function TestPage({ searchParams }: PageProps) {
+  const { flavor: flavorParam } = await searchParams
   const supabase = await createClient()
 
   const [{ data: flavors }, { data: imageSets }] = await Promise.all([
@@ -32,6 +37,7 @@ export default async function TestPage() {
         <TestFlavorClient
           flavors={flavors ?? []}
           imageSets={imageSets ?? []}
+          initialFlavorId={flavorParam}
         />
       </div>
     </AnimatedPage>

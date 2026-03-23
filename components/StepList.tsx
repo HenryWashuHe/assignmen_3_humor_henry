@@ -25,6 +25,7 @@ import { toast } from 'sonner'
 import { HumorFlavorStep, LlmModel, LlmInputType, LlmOutputType, HumorFlavorStepType } from '@/lib/types'
 import { StepForm } from './StepForm'
 import { DeleteConfirm } from './DeleteConfirm'
+import { Tooltip } from './Tooltip'
 import { cn } from '@/lib/cn'
 
 interface StepItemContentProps {
@@ -50,6 +51,7 @@ function StepItemContent({
   isDragging = false,
   dragHandleProps,
 }: StepItemContentProps) {
+  const [expanded, setExpanded] = useState(false)
   const modelName = models.find((m) => m.id === step.llm_model_id)?.name ?? '—'
   const inputType = inputTypes.find((t) => t.id === step.llm_input_type_id)?.slug ?? '—'
   const outputType = outputTypes.find((t) => t.id === step.llm_output_type_id)?.slug ?? '—'
@@ -107,39 +109,85 @@ function StepItemContent({
           </div>
 
           <div className="flex gap-1 flex-shrink-0">
-            <button
-              onClick={() => onEdit(step)}
-              className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-              aria-label="Edit step"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-            </button>
-            <button
-              onClick={() => onDelete(step)}
-              className="p-1.5 rounded-lg text-zinc-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
-              aria-label="Delete step"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-            </button>
+            <Tooltip content="Edit step">
+              <button
+                onClick={() => onEdit(step)}
+                className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                aria-label="Edit step"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
+            </Tooltip>
+            <Tooltip content="Delete step">
+              <button
+                onClick={() => onDelete(step)}
+                className="p-1.5 rounded-lg text-zinc-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
+                aria-label="Delete step"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </Tooltip>
           </div>
         </div>
 
         {(step.llm_system_prompt || step.llm_user_prompt) && (
-          <div className="mt-2 space-y-1">
-            {step.llm_system_prompt && (
-              <p className="text-xs text-zinc-400 dark:text-zinc-500 truncate font-mono">
-                sys: {step.llm_system_prompt}
-              </p>
-            )}
-            {step.llm_user_prompt && (
-              <p className="text-xs text-zinc-400 dark:text-zinc-500 truncate font-mono">
-                usr: {step.llm_user_prompt}
-              </p>
-            )}
+          <div className="mt-2">
+            <button
+              onClick={() => setExpanded((e) => !e)}
+              className="flex items-center gap-1 text-xs text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors mb-1"
+            >
+              <svg
+                className={cn('w-3 h-3 transition-transform duration-200', expanded && 'rotate-90')}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+              {expanded ? 'Hide prompts' : 'Show prompts'}
+              {step.llm_system_prompt && (
+                <span className="ml-1 px-1 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-[10px]">
+                  sys: {step.llm_system_prompt.length}ch
+                </span>
+              )}
+              {step.llm_user_prompt && (
+                <span className="ml-0.5 px-1 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-[10px]">
+                  usr: {step.llm_user_prompt.length}ch
+                </span>
+              )}
+            </button>
+            <AnimatePresence>
+              {expanded && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden space-y-2"
+                >
+                  {step.llm_system_prompt && (
+                    <div className="rounded-lg bg-zinc-50 dark:bg-zinc-800/50 p-2.5 border border-zinc-200 dark:border-zinc-700">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mb-1">System Prompt</p>
+                      <p className="text-xs text-zinc-600 dark:text-zinc-300 font-mono whitespace-pre-wrap break-words leading-relaxed">
+                        {step.llm_system_prompt}
+                      </p>
+                    </div>
+                  )}
+                  {step.llm_user_prompt && (
+                    <div className="rounded-lg bg-zinc-50 dark:bg-zinc-800/50 p-2.5 border border-zinc-200 dark:border-zinc-700">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mb-1">User Prompt</p>
+                      <p className="text-xs text-zinc-600 dark:text-zinc-300 font-mono whitespace-pre-wrap break-words leading-relaxed">
+                        {step.llm_user_prompt}
+                      </p>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         )}
       </div>
@@ -206,6 +254,7 @@ interface StepListProps {
   inputTypes: LlmInputType[]
   outputTypes: LlmOutputType[]
   stepTypes: HumorFlavorStepType[]
+  isNewFlavor?: boolean
 }
 
 export function StepList({
@@ -215,9 +264,10 @@ export function StepList({
   inputTypes,
   outputTypes,
   stepTypes,
+  isNewFlavor = false,
 }: StepListProps) {
   const [steps, setSteps] = useState<HumorFlavorStep[]>(initialSteps)
-  const [showAddForm, setShowAddForm] = useState(false)
+  const [showAddForm, setShowAddForm] = useState(isNewFlavor && initialSteps.length === 0)
   const [editingStep, setEditingStep] = useState<HumorFlavorStep | null>(null)
   const [deletingStep, setDeletingStep] = useState<HumorFlavorStep | null>(null)
   const [activeId, setActiveId] = useState<number | null>(null)
@@ -369,11 +419,20 @@ export function StepList({
       </AnimatePresence>
 
       {steps.length === 0 && !showAddForm ? (
-        <div className="text-center py-12 text-zinc-400 dark:text-zinc-500 bg-white dark:bg-zinc-900 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700">
-          <svg className="w-10 h-10 mx-auto mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="text-center py-12 bg-white dark:bg-zinc-900 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700">
+          <svg className="w-10 h-10 mx-auto mb-3 text-zinc-300 dark:text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>
-          <p className="text-sm">No steps yet. Add your first step to get started.</p>
+          <p className="text-sm text-zinc-400 dark:text-zinc-500 mb-3">No steps yet. Add your first step to build the pipeline.</p>
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white text-sm font-medium shadow-sm shadow-indigo-500/30 transition-colors active:scale-[0.97]"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Add First Step
+          </button>
         </div>
       ) : (
         <DndContext

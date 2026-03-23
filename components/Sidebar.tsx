@@ -2,8 +2,24 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+
+function KbdShortcut() {
+  const [isMac, setIsMac] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMac(/Mac/.test(navigator.userAgent))
+    setMounted(true)
+  }, [])
+
+  return (
+    <kbd className="px-1.5 py-0.5 rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-[10px] font-medium">
+      {mounted ? (isMac ? '\u2318K' : 'Ctrl+K') : '\u00A0\u00A0\u00A0'}
+    </kbd>
+  )
+}
 import { ThemeToggle } from './ThemeToggle'
 import { createClient } from '@/lib/supabase-browser'
 import { Profile } from '@/lib/types'
@@ -121,6 +137,24 @@ export function Sidebar({ profile }: SidebarProps) {
           </button>
         </div>
       </div>
+
+      {/* Command palette hint */}
+      {!collapsed && (
+        <div className="mx-3 mt-3">
+          <button
+            onClick={() => {
+              window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))
+            }}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 text-xs hover:border-indigo-300 dark:hover:border-indigo-700 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <span className="flex-1 text-left">Search...</span>
+            <KbdShortcut />
+          </button>
+        </div>
+      )}
 
       {/* Navigation */}
       <nav className="flex-1 px-2 py-4 space-y-1 relative">

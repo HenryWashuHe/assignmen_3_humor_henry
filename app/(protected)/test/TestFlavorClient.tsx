@@ -13,6 +13,7 @@ const API_BASE = 'https://api.almostcrackd.ai'
 interface TestFlavorClientProps {
   flavors: Pick<HumorFlavor, 'id' | 'slug'>[]
   imageSets: Pick<StudyImageSet, 'id' | 'slug' | 'description'>[]
+  initialFlavorId?: string
 }
 
 type ImageSource = 'upload' | 'study-set'
@@ -44,8 +45,8 @@ function getStepperStatus(stage: LoadingStage): 'idle' | 'loading' | 'success' |
   return 'idle'
 }
 
-export function TestFlavorClient({ flavors, imageSets }: TestFlavorClientProps) {
-  const [flavorId, setFlavorId] = useState<string>(flavors[0]?.id?.toString() ?? '')
+export function TestFlavorClient({ flavors, imageSets, initialFlavorId }: TestFlavorClientProps) {
+  const [flavorId, setFlavorId] = useState<string>(initialFlavorId ?? flavors[0]?.id?.toString() ?? '')
   const [imageSource, setImageSource] = useState<ImageSource>('upload')
   const [selectedSetId, setSelectedSetId] = useState<string>('')
   const [setImages, setSetImages] = useState<Image[]>([])

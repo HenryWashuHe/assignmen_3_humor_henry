@@ -1,19 +1,21 @@
 import { createClient } from '@/lib/supabase-server'
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
 import { StepList } from '@/components/StepList'
 import { StepPipelineViz } from '@/components/StepPipelineViz'
 import { AnimatedPage } from '@/components/AnimatedPage'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { FlavorDetailClient } from './FlavorDetailClient'
 
 export const dynamic = 'force-dynamic'
 
 interface PageProps {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ new?: string }>
 }
 
-export default async function FlavorDetailPage({ params }: PageProps) {
+export default async function FlavorDetailPage({ params, searchParams }: PageProps) {
   const { id } = await params
+  const { new: isNew } = await searchParams
   const flavorId = Number(id)
 
   if (isNaN(flavorId)) notFound()
@@ -56,15 +58,7 @@ export default async function FlavorDetailPage({ params }: PageProps) {
     <AnimatedPage>
       <div className="p-8">
         <div className="mb-6">
-          <Link
-            href="/flavors"
-            className="inline-flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors mb-4"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to Flavors
-          </Link>
+          <Breadcrumbs items={[{ label: 'Flavors', href: '/flavors' }, { label: flavor.slug }]} />
         </div>
 
         <FlavorDetailClient flavor={flavor} />
@@ -83,6 +77,7 @@ export default async function FlavorDetailPage({ params }: PageProps) {
             inputTypes={inputTypes ?? []}
             outputTypes={outputTypes ?? []}
             stepTypes={stepTypes ?? []}
+            isNewFlavor={isNew === 'true'}
           />
         </div>
       </div>

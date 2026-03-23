@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase-server'
 import Link from 'next/link'
 import { AnimatedPage } from '@/components/AnimatedPage'
+import { CaptionCard } from '@/components/CaptionCard'
 
 export const dynamic = 'force-dynamic'
 
@@ -166,7 +167,7 @@ export default async function CaptionsPage({ searchParams }: PageProps) {
           </div>
         ) : (
           <div className="space-y-3">
-            {captions.map((caption) => {
+            {captions.map((caption, index) => {
               const flavor = Array.isArray(caption.humor_flavors)
                 ? caption.humor_flavors[0]
                 : caption.humor_flavors
@@ -175,8 +176,8 @@ export default async function CaptionsPage({ searchParams }: PageProps) {
                 : caption.images
 
               return (
+                <CaptionCard key={caption.id} index={index}>
                 <div
-                  key={caption.id}
                   className="flex gap-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 transition-all hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-900 hover:-translate-y-0.5 duration-200"
                 >
                   {/* Image thumbnail */}
@@ -218,6 +219,7 @@ export default async function CaptionsPage({ searchParams }: PageProps) {
                     </div>
                   </div>
                 </div>
+                </CaptionCard>
               )
             })}
           </div>

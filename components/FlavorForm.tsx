@@ -80,7 +80,7 @@ export function FlavorForm({
       if (onSuccess) {
         onSuccess()
       } else if (!isEditing && data.data?.id) {
-        router.push(`/flavors/${data.data.id}`)
+        router.push(`/flavors/${data.data.id}?new=true`)
       } else {
         router.refresh()
       }

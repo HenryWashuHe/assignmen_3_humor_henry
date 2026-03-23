@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import { EmptyState } from './EmptyState'
 
 interface Flavor {
@@ -23,6 +24,20 @@ function formatDate(dateStr: string | null): string {
 
 export function FlavorsTable({ flavors, stepCounts }: FlavorsTableProps) {
   const [search, setSearch] = useState('')
+  const searchRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === '/' && !e.metaKey && !e.ctrlKey) {
+        const tag = (e.target as HTMLElement).tagName
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+        e.preventDefault()
+        searchRef.current?.focus()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   const filtered = flavors.filter((f) => {
     const q = search.toLowerCase()
@@ -61,12 +76,16 @@ export function FlavorsTable({ flavors, stepCounts }: FlavorsTableProps) {
           <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
         <input
+          ref={searchRef}
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by slug or description..."
-          className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-sm transition-colors"
+          className="w-full pl-9 pr-12 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-sm transition-colors"
         />
+        <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center px-1.5 py-0.5 rounded border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-[10px] font-medium text-zinc-400 dark:text-zinc-500">
+          /
+        </kbd>
       </div>
 
       {filtered.length === 0 ? (
@@ -74,10 +93,16 @@ export function FlavorsTable({ flavors, stepCounts }: FlavorsTableProps) {
           No results for &quot;{search}&quot;
         </div>
       ) : (
-        /* Card-based list — no motion.tr inside tbody */
+        /* Card-based list with staggered entry */
         <div className="space-y-2">
-          {filtered.map((flavor) => (
-            <Link key={flavor.id} href={`/flavors/${flavor.id}`}>
+          {filtered.map((flavor, index) => (
+            <motion.div
+              key={flavor.id}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2, delay: Math.min(index * 0.04, 0.4), ease: 'easeOut' }}
+            >
+            <Link href={`/flavors/${flavor.id}`}>
               <div className="group flex items-center gap-4 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-sm transition-all duration-200 cursor-pointer">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -108,6 +133,7 @@ export function FlavorsTable({ flavors, stepCounts }: FlavorsTableProps) {
                 </svg>
               </div>
             </Link>
+            </motion.div>
           ))}
         </div>
       )}

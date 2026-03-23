@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase-server'
 import { Sidebar } from '@/components/Sidebar'
+import { CommandPalette } from '@/components/CommandPalette'
 import { redirect } from 'next/navigation'
 
 export default async function ProtectedLayout({
@@ -32,6 +33,7 @@ export default async function ProtectedLayout({
       <main className="flex-1 overflow-auto">
         {children}
       </main>
+      <CommandPalette />
     </div>
   )
 }
