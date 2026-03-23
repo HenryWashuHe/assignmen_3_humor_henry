@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase-server'
 import { Sidebar } from '@/components/Sidebar'
 import { redirect } from 'next/navigation'
 
-export default async function DashboardLayout({
+export default async function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode
@@ -21,6 +21,10 @@ export default async function DashboardLayout({
     .select('id, is_superadmin, is_matrix_admin, first_name, last_name, email')
     .eq('id', user.id)
     .single()
+
+  if (!profile || (!profile.is_superadmin && !profile.is_matrix_admin)) {
+    redirect('/unauthorized')
+  }
 
   return (
     <div className="flex min-h-screen bg-zinc-50 dark:bg-zinc-950">

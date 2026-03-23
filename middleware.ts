@@ -48,23 +48,12 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redirect unauthenticated users to login
+  // Admin role check is done in the dashboard layout (server component) to avoid
+  // DB queries in Edge middleware which can cause MIDDLEWARE_INVOCATION_FAILED
   if (!user) {
     const loginUrl = request.nextUrl.clone()
     loginUrl.pathname = '/login'
     return NextResponse.redirect(loginUrl)
-  }
-
-  // Check admin access
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('is_superadmin, is_matrix_admin')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile || (!profile.is_superadmin && !profile.is_matrix_admin)) {
-    const unauthorizedUrl = request.nextUrl.clone()
-    unauthorizedUrl.pathname = '/unauthorized'
-    return NextResponse.redirect(unauthorizedUrl)
   }
 
   return supabaseResponse
