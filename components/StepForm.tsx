@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { HumorFlavorStep, LlmModel, LlmInputType, LlmOutputType, HumorFlavorStepType, CreateStepPayload } from '@/lib/types'
 import { cn } from '@/lib/cn'
@@ -12,9 +12,20 @@ interface StepFormProps {
   inputTypes: LlmInputType[]
   outputTypes: LlmOutputType[]
   stepTypes: HumorFlavorStepType[]
+  availableTemplateVars: string[]
   onSuccess: () => void
   onCancel: () => void
 }
+
+type PromptTarget = 'system' | 'user'
+
+const runtimeTemplateVars = [
+  '${imageAdditionalContext}',
+  '${tenRandomTerms}',
+  '${tenRandomCaptionExamples}',
+  '${startRandomizeLines}',
+  '${endRandomizeLines}',
+]
 
 export function StepForm({
   flavorId,
@@ -23,6 +34,7 @@ export function StepForm({
   inputTypes,
   outputTypes,
   stepTypes,
+  availableTemplateVars,
   onSuccess,
   onCancel,
 }: StepFormProps) {
@@ -37,6 +49,9 @@ export function StepForm({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [shaking, setShaking] = useState(false)
+  const [activePrompt, setActivePrompt] = useState<PromptTarget>('user')
+  const systemPromptRef = useRef<HTMLTextAreaElement>(null)
+  const userPromptRef = useRef<HTMLTextAreaElement>(null)
 
   const selectedModel = models.find((m) => String(m.id) === modelId)
   const isTemperatureSupported = selectedModel?.is_temperature_supported ?? false
@@ -110,6 +125,29 @@ export function StepForm({
     'placeholder-zinc-400 dark:placeholder-zinc-600'
   )
 
+  const insertVariable = (variable: string) => {
+    const isSystemTarget = activePrompt === 'system'
+    const textarea = isSystemTarget ? systemPromptRef.current : userPromptRef.current
+    const value = isSystemTarget ? systemPrompt : userPrompt
+    const setter = isSystemTarget ? setSystemPrompt : setUserPrompt
+
+    if (!textarea) {
+      setter((current) => `${current}${current ? ' ' : ''}${variable}`)
+      return
+    }
+
+    const start = textarea.selectionStart ?? value.length
+    const end = textarea.selectionEnd ?? value.length
+    const nextValue = `${value.slice(0, start)}${variable}${value.slice(end)}`
+    setter(nextValue)
+
+    requestAnimationFrame(() => {
+      textarea.focus()
+      const caretPosition = start + variable.length
+      textarea.setSelectionRange(caretPosition, caretPosition)
+    })
+  }
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -120,6 +158,66 @@ export function StepForm({
           <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
         </div>
       )}
+
+      <div className="rounded-xl border border-indigo-200 dark:border-indigo-900 bg-indigo-50/70 dark:bg-indigo-950/30 p-4 space-y-3">
+        <div>
+          <h3 className="text-sm font-semibold text-indigo-900 dark:text-indigo-200">
+            Pipeline Authoring
+          </h3>
+          <p className="text-xs text-indigo-700 dark:text-indigo-300 mt-1 leading-relaxed">
+            Humor flavors are chained prompt pipelines. Earlier steps can feed later ones, so
+            this form is designed for authoring a sequence like recognition → description →
+            caption generation rather than isolated prompts.
+          </p>
+        </div>
+
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 mb-2">
+            Available Earlier Step Outputs
+          </p>
+          {availableTemplateVars.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {availableTemplateVars.map((variable) => (
+                <button
+                  key={variable}
+                  type="button"
+                  onClick={() => insertVariable(variable)}
+                  className="px-2.5 py-1 rounded-md border border-indigo-200 dark:border-indigo-800 bg-white/80 dark:bg-zinc-900 text-xs font-medium text-indigo-700 dark:text-indigo-300 hover:bg-white dark:hover:bg-zinc-800 transition-colors"
+                >
+                  {variable}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-indigo-700 dark:text-indigo-300">
+              This is currently the first step in the chain. Later steps will be able to reference
+              its result as <span className="font-mono">${'{step1Output}'}</span>.
+            </p>
+          )}
+        </div>
+
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 mb-2">
+            Common Runtime Variables
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {runtimeTemplateVars.map((variable) => (
+              <button
+                key={variable}
+                type="button"
+                onClick={() => insertVariable(variable)}
+                className="px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-white dark:hover:bg-zinc-800 transition-colors"
+              >
+                {variable}
+              </button>
+            ))}
+          </div>
+          <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-2 leading-relaxed">
+            These are commonly used in Matrix captioning prompts. Insert buttons target the last
+            prompt field you focused.
+          </p>
+        </div>
+      </div>
 
       <div>
         <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
@@ -228,8 +326,10 @@ export function StepForm({
           System Prompt
         </label>
         <textarea
+          ref={systemPromptRef}
           value={systemPrompt}
           onChange={(e) => setSystemPrompt(e.target.value)}
+          onFocus={() => setActivePrompt('system')}
           placeholder="System-level instructions for the LLM..."
           rows={4}
           className={promptClass}
@@ -241,8 +341,10 @@ export function StepForm({
           User Prompt
         </label>
         <textarea
+          ref={userPromptRef}
           value={userPrompt}
           onChange={(e) => setUserPrompt(e.target.value)}
+          onFocus={() => setActivePrompt('user')}
           placeholder="User-facing prompt template..."
           rows={4}
           className={promptClass}

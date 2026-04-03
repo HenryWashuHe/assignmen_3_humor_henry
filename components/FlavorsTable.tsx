@@ -65,9 +65,9 @@ export function FlavorsTable({ flavors, stepCounts }: FlavorsTableProps) {
   return (
     <div className="space-y-4">
       {/* Search */}
-      <div className="relative">
+      <div className="glass-surface relative rounded-[22px] p-3">
         <svg
-          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 dark:text-zinc-500"
+          className="absolute left-6 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400 dark:text-zinc-500"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -81,9 +81,9 @@ export function FlavorsTable({ flavors, stepCounts }: FlavorsTableProps) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by slug or description..."
-          className="w-full pl-9 pr-12 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-sm transition-colors"
+          className="w-full rounded-2xl border border-zinc-200/90 bg-white/90 py-3 pl-12 pr-12 text-sm text-zinc-900 placeholder-zinc-400 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-400 dark:border-zinc-700 dark:bg-zinc-900/90 dark:text-zinc-100"
         />
-        <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center px-1.5 py-0.5 rounded border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-[10px] font-medium text-zinc-400 dark:text-zinc-500">
+        <kbd className="absolute right-6 top-1/2 hidden -translate-y-1/2 items-center rounded border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 text-[10px] font-medium text-zinc-400 dark:text-zinc-500 sm:inline-flex">
           /
         </kbd>
       </div>
@@ -103,27 +103,27 @@ export function FlavorsTable({ flavors, stepCounts }: FlavorsTableProps) {
               transition={{ duration: 0.2, delay: Math.min(index * 0.04, 0.4), ease: 'easeOut' }}
             >
             <Link href={`/flavors/${flavor.id}`}>
-              <div className="group flex items-center gap-4 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-sm transition-all duration-200 cursor-pointer">
+              <div className="glass-surface group flex cursor-pointer items-center gap-4 rounded-[24px] p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-sky-200/80 dark:hover:border-sky-900">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-medium text-zinc-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                    <span className="font-medium text-zinc-950 transition-colors group-hover:text-sky-600 dark:text-zinc-50 dark:group-hover:text-sky-300">
                       {flavor.slug}
                     </span>
-                    <span className="text-xs text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full">
+                    <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
                       {stepCounts[flavor.id] ?? 0} step{stepCounts[flavor.id] !== 1 ? 's' : ''}
                     </span>
                   </div>
                   {flavor.description && (
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400 truncate mt-0.5">
+                    <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400 truncate">
                       {flavor.description}
                     </p>
                   )}
                 </div>
-                <span className="text-xs text-zinc-400 dark:text-zinc-500 whitespace-nowrap hidden sm:block">
+                <span className="hidden whitespace-nowrap text-xs text-zinc-400 dark:text-zinc-500 sm:block">
                   {formatDate(flavor.created_datetime_utc)}
                 </span>
                 <svg
-                  className="w-4 h-4 text-zinc-400 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors flex-shrink-0"
+                  className="h-4 w-4 flex-shrink-0 text-zinc-400 transition-colors group-hover:text-sky-500 dark:group-hover:text-sky-300"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"

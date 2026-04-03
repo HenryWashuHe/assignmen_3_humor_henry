@@ -28,9 +28,9 @@ export default async function ProtectedLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-zinc-50 dark:bg-zinc-950">
+    <div className="flex min-h-screen bg-transparent">
       <Sidebar profile={profile} />
-      <main className="flex-1 overflow-auto">
+      <main className="relative flex-1 overflow-auto">
         {children}
       </main>
       <CommandPalette />

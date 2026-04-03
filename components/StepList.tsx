@@ -280,6 +280,15 @@ export function StepList({
   )
 
   const activeStep = activeId ? steps.find((s) => s.id === activeId) : null
+  const sortedSteps = [...steps].sort((a, b) => a.order_by - b.order_by)
+
+  const getAvailableTemplateVars = (currentStep?: HumorFlavorStep | null) => {
+    const previousSteps = currentStep
+      ? sortedSteps.filter((step) => step.order_by < currentStep.order_by)
+      : sortedSteps
+
+    return previousSteps.map((step) => `\${step${step.order_by}Output}`)
+  }
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as number)
@@ -354,14 +363,19 @@ export function StepList({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-          Steps ({steps.length})
-        </h2>
+      <div className="glass-surface flex items-center justify-between rounded-[24px] px-5 py-4">
+        <div>
+          <h2 className="text-lg font-semibold text-zinc-950 dark:text-zinc-50">
+            Steps ({steps.length})
+          </h2>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            Author, reorder, and refine the sequential prompt chain for this flavor.
+          </p>
+        </div>
         {!showAddForm && !editingStep && (
           <button
             onClick={() => setShowAddForm(true)}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-zinc-100 dark:text-zinc-900 text-sm font-medium hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors"
+            className="flex items-center gap-2 rounded-xl bg-zinc-950 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-zinc-200"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -378,7 +392,7 @@ export function StepList({
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5 overflow-hidden"
+            className="glass-surface overflow-hidden rounded-[26px] p-5"
           >
             <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-4">Add New Step</h3>
             <StepForm
@@ -387,6 +401,7 @@ export function StepList({
               inputTypes={inputTypes}
               outputTypes={outputTypes}
               stepTypes={stepTypes}
+              availableTemplateVars={getAvailableTemplateVars()}
               onSuccess={handleAddSuccess}
               onCancel={() => setShowAddForm(false)}
             />
@@ -401,7 +416,7 @@ export function StepList({
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5 overflow-hidden"
+            className="glass-surface overflow-hidden rounded-[26px] p-5"
           >
             <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-4">Edit Step</h3>
             <StepForm
@@ -411,6 +426,7 @@ export function StepList({
               inputTypes={inputTypes}
               outputTypes={outputTypes}
               stepTypes={stepTypes}
+              availableTemplateVars={getAvailableTemplateVars(editingStep)}
               onSuccess={handleEditSuccess}
               onCancel={() => setEditingStep(null)}
             />
@@ -419,7 +435,7 @@ export function StepList({
       </AnimatePresence>
 
       {steps.length === 0 && !showAddForm ? (
-        <div className="text-center py-12 bg-white dark:bg-zinc-900 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700">
+        <div className="glass-surface rounded-[26px] border-dashed py-12 text-center">
           <svg className="w-10 h-10 mx-auto mb-3 text-zinc-300 dark:text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>

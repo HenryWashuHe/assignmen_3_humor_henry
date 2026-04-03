@@ -1,7 +1,9 @@
 import { createClient } from '@/lib/supabase-server'
 import Link from 'next/link'
 import { AnimatedPage } from '@/components/AnimatedPage'
+import { AppShell } from '@/components/AppShell'
 import { StatCard, QuickActionsCard, CaptionsOverTimeCard } from '@/components/DashboardStats'
+import { PageHeader } from '@/components/PageHeader'
 
 export const dynamic = 'force-dynamic'
 
@@ -56,85 +58,109 @@ export default async function DashboardPage() {
 
   return (
     <AnimatedPage>
-      <div className="p-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Dashboard</h1>
-          <p className="text-zinc-500 dark:text-zinc-400 mt-1">
-            Overview of your humor flavor system
-          </p>
-        </div>
-
-        {/* Stats grid — each child is a proper element, no fragments */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-          <StatCard
-            label="Total Flavors"
-            value={flavorCount ?? 0}
-            href="/flavors"
-            linkLabel="View all flavors →"
-            delay={0}
-            icon={flavorsIcon}
-          />
-          <StatCard
-            label="Total Captions"
-            value={captionCount ?? 0}
-            href="/captions"
-            linkLabel="View all captions →"
-            delay={0.08}
-            icon={captionsIcon}
-          />
-          <QuickActionsCard />
-          <CaptionsOverTimeCard data={captionsOverTime} />
-        </div>
-
-        {/* Recent Flavors */}
-        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800">
-          <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-            <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">Recent Flavors</h2>
-            <Link
-              href="/flavors"
-              className="text-sm text-indigo-500 dark:text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors"
-            >
-              View all →
-            </Link>
-          </div>
-          <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
-            {recentFlavors?.length === 0 && (
-              <div className="px-6 py-8 text-center text-zinc-400 dark:text-zinc-500">
-                No flavors yet.{' '}
-                <Link href="/flavors/new" className="text-indigo-500 dark:text-indigo-400 hover:underline">
-                  Create your first flavor
+      <AppShell>
+        <div className="space-y-8">
+          <PageHeader
+            eyebrow="Overview"
+            title="Dashboard"
+            description="Track flavor inventory, recent experimentation activity, and caption generation trends from one place."
+            badge="Matrix control room"
+            actions={
+              <>
+                <Link
+                  href="/flavors/new"
+                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-sky-500 via-cyan-500 to-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_18px_40px_-22px_rgba(14,165,233,0.95)] transition-all hover:-translate-y-0.5 hover:brightness-105"
+                >
+                  New Flavor
                 </Link>
+                <Link
+                  href="/test"
+                  className="inline-flex items-center gap-2 rounded-xl border border-zinc-300 bg-white/80 px-4 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:border-sky-300 hover:text-sky-700 dark:border-zinc-700 dark:bg-zinc-900/70 dark:text-zinc-200 dark:hover:border-sky-800 dark:hover:text-sky-300"
+                >
+                  Run Test
+                </Link>
+              </>
+            }
+          />
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <StatCard
+              label="Total Flavors"
+              value={flavorCount ?? 0}
+              href="/flavors"
+              linkLabel="View all flavors"
+              delay={0}
+              icon={flavorsIcon}
+            />
+            <StatCard
+              label="Total Captions"
+              value={captionCount ?? 0}
+              href="/captions"
+              linkLabel="View all captions"
+              delay={0.08}
+              icon={captionsIcon}
+            />
+            <QuickActionsCard />
+            <CaptionsOverTimeCard data={captionsOverTime} />
+          </div>
+
+          <div className="glass-surface overflow-hidden rounded-[28px]">
+            <div className="flex items-center justify-between gap-4 border-b border-zinc-200/80 px-6 py-5 dark:border-zinc-800/80">
+              <div>
+                <h2 className="text-base font-semibold text-zinc-950 dark:text-zinc-50">Recent Flavors</h2>
+                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                  Recently created pipelines and experiment branches.
+                </p>
               </div>
-            )}
-            {recentFlavors?.map((flavor) => (
               <Link
-                key={flavor.id}
-                href={`/flavors/${flavor.id}`}
-                className="flex items-center gap-4 px-6 py-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors group"
+                href="/flavors"
+                className="text-sm font-medium text-sky-600 transition-colors hover:text-sky-700 dark:text-sky-300 dark:hover:text-sky-200"
               >
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                    {flavor.slug}
-                  </p>
-                  {flavor.description && (
-                    <p className="text-xs text-zinc-400 dark:text-zinc-500 truncate mt-0.5">
-                      {flavor.description}
-                    </p>
-                  )}
-                </div>
-                <span className="text-xs text-zinc-400 dark:text-zinc-500 whitespace-nowrap">
-                  {flavor.created_datetime_utc
-                    ? new Date(flavor.created_datetime_utc).toLocaleDateString()
-                    : '—'}
-                </span>
-                <svg className="w-4 h-4 text-zinc-300 dark:text-zinc-600 group-hover:text-zinc-500 dark:group-hover:text-zinc-400 transition-colors flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
+                View all
               </Link>
-            ))}
+            </div>
+            <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
+              {recentFlavors?.length === 0 && (
+                <div className="px-6 py-8 text-center text-zinc-400 dark:text-zinc-500">
+                  No flavors yet.{' '}
+                  <Link href="/flavors/new" className="text-sky-600 dark:text-sky-300 hover:underline">
+                    Create your first flavor
+                  </Link>
+                </div>
+              )}
+              {recentFlavors?.map((flavor) => (
+                <Link
+                  key={flavor.id}
+                  href={`/flavors/${flavor.id}`}
+                  className="group flex items-center gap-4 px-6 py-4 transition-colors hover:bg-zinc-50/80 dark:hover:bg-zinc-800/40"
+                >
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500/15 to-emerald-500/15 text-sm font-semibold text-sky-700 ring-1 ring-sky-200/70 dark:text-sky-300 dark:ring-sky-800/70">
+                    {flavor.slug.slice(0, 1).toUpperCase()}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-zinc-950 transition-colors group-hover:text-sky-600 dark:text-zinc-50 dark:group-hover:text-sky-300">
+                      {flavor.slug}
+                    </p>
+                    {flavor.description && (
+                      <p className="mt-0.5 truncate text-xs text-zinc-500 dark:text-zinc-400">
+                        {flavor.description}
+                      </p>
+                    )}
+                  </div>
+                  <span className="whitespace-nowrap text-xs text-zinc-400 dark:text-zinc-500">
+                    {flavor.created_datetime_utc
+                      ? new Date(flavor.created_datetime_utc).toLocaleDateString()
+                      : '—'}
+                  </span>
+                  <svg className="h-4 w-4 flex-shrink-0 text-zinc-300 transition-colors group-hover:text-sky-500 dark:text-zinc-600 dark:group-hover:text-sky-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      </AppShell>
     </AnimatedPage>
   )
 }

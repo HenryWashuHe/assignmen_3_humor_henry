@@ -97,10 +97,10 @@ export function Sidebar({ profile }: SidebarProps) {
     <motion.aside
       animate={{ width: collapsed ? 72 : 256 }}
       transition={{ duration: 0.25, ease: 'easeInOut' }}
-      className="flex flex-col min-h-screen bg-white dark:bg-zinc-950 border-r border-zinc-200 dark:border-zinc-800 overflow-hidden flex-shrink-0"
+      className="glass-surface flex min-h-screen flex-col overflow-hidden border-r border-white/60 dark:border-white/8 flex-shrink-0"
     >
       {/* Logo — gradient accent */}
-      <div className="px-4 py-5 border-b border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-indigo-50/60 to-transparent dark:from-indigo-950/30 dark:to-transparent">
+      <div className="border-b border-zinc-200/70 px-4 py-5 dark:border-zinc-800/80 bg-[radial-gradient(circle_at_top_left,rgba(14,165,233,0.12),transparent_40%),linear-gradient(180deg,rgba(255,255,255,0.7),transparent)] dark:bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.16),transparent_40%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent)]">
         <div className="flex items-center gap-3">
           <div className="relative flex-shrink-0">
             <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 blur opacity-40" />
@@ -145,7 +145,7 @@ export function Sidebar({ profile }: SidebarProps) {
             onClick={() => {
               window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))
             }}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 text-xs hover:border-indigo-300 dark:hover:border-indigo-700 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
+            className="w-full flex items-center gap-2 rounded-xl border border-white/70 bg-white/70 px-3 py-2 text-xs text-zinc-500 shadow-sm backdrop-blur dark:border-white/8 dark:bg-zinc-900/70 dark:text-zinc-400 hover:border-sky-300 dark:hover:border-sky-700 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -157,7 +157,7 @@ export function Sidebar({ profile }: SidebarProps) {
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 px-2 py-4 space-y-1 relative">
+      <nav className="relative flex-1 space-y-1 px-2 py-4">
         {navItems.map((item) => {
           const isActive =
             pathname === item.href || pathname.startsWith(`${item.href}/`)
@@ -167,7 +167,7 @@ export function Sidebar({ profile }: SidebarProps) {
               href={item.href}
               onClick={() => setMobileOpen(false)}
               className={cn(
-                'relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors group',
+                'relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors group',
                 isActive
                   ? 'text-white'
                   : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
@@ -176,12 +176,12 @@ export function Sidebar({ profile }: SidebarProps) {
               {isActive && (
                 <motion.span
                   layoutId="nav-indicator"
-                  className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-indigo-500 dark:from-indigo-500 dark:to-indigo-400 rounded-lg -z-10 shadow-sm shadow-indigo-500/30"
+                  className="absolute inset-0 rounded-xl bg-gradient-to-r from-sky-500 via-cyan-500 to-emerald-500 -z-10 shadow-[0_16px_40px_-24px_rgba(14,165,233,0.9)]"
                   transition={{ duration: 0.2, ease: 'easeInOut' }}
                 />
               )}
               {!isActive && (
-                <span className="absolute inset-0 rounded-lg bg-zinc-100 dark:bg-zinc-800 opacity-0 group-hover:opacity-100 transition-opacity -z-10" />
+                <span className="absolute inset-0 rounded-xl bg-zinc-100/90 dark:bg-zinc-800/90 opacity-0 group-hover:opacity-100 transition-opacity -z-10" />
               )}
               <span className="flex-shrink-0 relative z-10">{item.icon}</span>
               <AnimatePresence>
@@ -203,7 +203,7 @@ export function Sidebar({ profile }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="px-2 py-4 border-t border-zinc-200 dark:border-zinc-800 space-y-3">
+      <div className="space-y-3 border-t border-zinc-200/70 px-2 py-4 dark:border-zinc-800/80">
         {!collapsed && (
           <div className="flex items-center justify-between px-1">
             <span className="text-xs text-zinc-500 dark:text-zinc-400">Theme</span>
@@ -246,7 +246,7 @@ export function Sidebar({ profile }: SidebarProps) {
         <button
           onClick={handleSignOut}
           className={cn(
-            'w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-zinc-600 dark:text-zinc-400',
+            'w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-zinc-600 dark:text-zinc-400',
             'hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/60 dark:hover:text-red-400 transition-colors',
             collapsed && 'justify-center px-2'
           )}
@@ -277,7 +277,7 @@ export function Sidebar({ profile }: SidebarProps) {
       {/* Mobile hamburger */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm"
+        className="glass-surface fixed left-4 top-4 z-50 rounded-xl p-2 lg:hidden"
         aria-label="Open menu"
       >
         <svg className="w-5 h-5 text-zinc-700 dark:text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -308,8 +308,8 @@ export function Sidebar({ profile }: SidebarProps) {
               transition={{ duration: 0.25, ease: 'easeInOut' }}
               className="fixed left-0 top-0 bottom-0 z-50 flex lg:hidden"
             >
-              <aside className="flex flex-col w-64 min-h-screen bg-white dark:bg-zinc-950 border-r border-zinc-200 dark:border-zinc-800">
-                <div className="px-4 py-5 border-b border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-indigo-50/60 to-transparent dark:from-indigo-950/30 dark:to-transparent flex items-center gap-3">
+              <aside className="glass-surface flex min-h-screen w-64 flex-col border-r border-white/60 dark:border-white/8">
+                <div className="flex items-center gap-3 border-b border-zinc-200/70 px-4 py-5 dark:border-zinc-800/80 bg-[radial-gradient(circle_at_top_left,rgba(14,165,233,0.12),transparent_40%),linear-gradient(180deg,rgba(255,255,255,0.7),transparent)] dark:bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.16),transparent_40%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent)]">
                   <div className="relative flex-shrink-0">
                     <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 blur opacity-40" />
                     <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600">

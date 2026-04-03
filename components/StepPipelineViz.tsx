@@ -33,10 +33,20 @@ export function StepPipelineViz({ steps }: StepPipelineVizProps) {
   const sorted = [...steps].sort((a, b) => a.order_by - b.order_by)
 
   return (
-    <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5 mb-6">
-      <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-4">
-        Pipeline ({steps.length} step{steps.length !== 1 ? 's' : ''})
-      </h3>
+    <div className="glass-surface mb-6 rounded-[26px] p-5">
+      <div className="mb-4 flex items-center justify-between gap-4">
+        <div>
+          <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+            Pipeline Flow
+          </h3>
+          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+            {steps.length} ordered step{steps.length !== 1 ? 's' : ''} in this flavor.
+          </p>
+        </div>
+        <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-[11px] font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+          Sequential execution
+        </span>
+      </div>
       <div className="overflow-x-auto pb-2">
         <div className="flex items-center gap-0 min-w-max">
           {sorted.map((step, index) => (
@@ -45,9 +55,9 @@ export function StepPipelineViz({ steps }: StepPipelineVizProps) {
               <div className="flex flex-col items-center gap-1.5 w-28">
                 <div
                   className={cn(
-                    'w-10 h-10 rounded-full flex items-center justify-center text-sm',
-                    'bg-indigo-50 dark:bg-indigo-950 border-2 border-indigo-200 dark:border-indigo-800',
-                    'text-indigo-700 dark:text-indigo-300 font-semibold',
+                    'flex h-11 w-11 items-center justify-center rounded-2xl text-sm',
+                    'bg-gradient-to-br from-sky-500/15 to-emerald-500/15 border border-sky-200 dark:border-sky-800',
+                    'text-sky-700 dark:text-sky-300 font-semibold',
                     'relative z-10'
                   )}
                 >
@@ -78,13 +88,13 @@ export function StepPipelineViz({ steps }: StepPipelineVizProps) {
                       stroke="currentColor"
                       strokeWidth="1.5"
                       strokeDasharray="4 3"
-                      className="text-indigo-300 dark:text-indigo-700"
+                      className="text-sky-300 dark:text-sky-700"
                       style={{ animation: 'dash 1.5s linear infinite', strokeDashoffset: 20 }}
                     />
                     <polygon
                       points="28,4 32,8 28,12"
                       fill="currentColor"
-                      className="text-indigo-300 dark:text-indigo-700"
+                      className="text-sky-300 dark:text-sky-700"
                     />
                   </svg>
                 </div>

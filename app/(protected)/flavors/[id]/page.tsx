@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { StepList } from '@/components/StepList'
 import { StepPipelineViz } from '@/components/StepPipelineViz'
 import { AnimatedPage } from '@/components/AnimatedPage'
+import { AppShell } from '@/components/AppShell'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { FlavorDetailClient } from './FlavorDetailClient'
 
@@ -56,7 +57,7 @@ export default async function FlavorDetailPage({ params, searchParams }: PagePro
 
   return (
     <AnimatedPage>
-      <div className="p-8">
+      <AppShell>
         <div className="mb-6">
           <Breadcrumbs items={[{ label: 'Flavors', href: '/flavors' }, { label: flavor.slug }]} />
         </div>
@@ -80,7 +81,7 @@ export default async function FlavorDetailPage({ params, searchParams }: PagePro
             isNewFlavor={isNew === 'true'}
           />
         </div>
-      </div>
+      </AppShell>
     </AnimatedPage>
   )
 }

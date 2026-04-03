@@ -30,15 +30,15 @@ export function LoginForm() {
   return (
     <div className="space-y-4">
       {error && (
-        <div className="rounded-lg bg-red-500/10 border border-red-500/30 p-3">
-          <p className="text-sm text-red-300">{error}</p>
+        <div className="rounded-2xl border border-red-400/20 bg-red-500/10 p-3">
+          <p className="text-sm text-red-200">{error}</p>
         </div>
       )}
 
       <button
         onClick={handleGoogleSignIn}
         disabled={loading}
-        className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl bg-white hover:bg-zinc-50 text-zinc-900 font-medium transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30 hover:-translate-y-0.5"
+        className="flex w-full items-center justify-center gap-3 rounded-2xl bg-white px-4 py-3.5 font-medium text-zinc-900 shadow-lg shadow-black/20 transition-all duration-200 hover:-translate-y-0.5 hover:bg-zinc-50 hover:shadow-xl hover:shadow-black/30 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loading ? (
           <svg className="animate-spin h-5 w-5 text-zinc-600" viewBox="0 0 24 24" fill="none">

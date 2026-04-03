@@ -17,12 +17,23 @@ interface TestFlavorClientProps {
 }
 
 type ImageSource = 'upload' | 'study-set'
+type StudySetMode = 'single' | 'batch'
 type LoadingStage = 'idle' | 'uploading' | 'processing' | 'done' | 'error'
 
 interface GeneratedCaption {
   id?: string
   content?: string
   [key: string]: unknown
+}
+
+interface BatchRunResult {
+  imageId: string
+  imageUrl: string | null
+  imageDescription: string | null
+  additionalContext: string | null
+  status: 'pending' | 'processing' | 'done' | 'error'
+  captions: GeneratedCaption[]
+  error: string | null
 }
 
 const PIPELINE_STEPS = ['Upload Image', 'Process', 'Generate Captions', 'Done']
@@ -48,6 +59,7 @@ function getStepperStatus(stage: LoadingStage): 'idle' | 'loading' | 'success' |
 export function TestFlavorClient({ flavors, imageSets, initialFlavorId }: TestFlavorClientProps) {
   const [flavorId, setFlavorId] = useState<string>(initialFlavorId ?? flavors[0]?.id?.toString() ?? '')
   const [imageSource, setImageSource] = useState<ImageSource>('upload')
+  const [studySetMode, setStudySetMode] = useState<StudySetMode>('single')
   const [selectedSetId, setSelectedSetId] = useState<string>('')
   const [setImages, setSetImages] = useState<Image[]>([])
   const [selectedImageId, setSelectedImageId] = useState<string>('')
@@ -57,6 +69,7 @@ export function TestFlavorClient({ flavors, imageSets, initialFlavorId }: TestFl
   const [stage, setStage] = useState<LoadingStage>('idle')
   const [stageMessage, setStageMessage] = useState('')
   const [captions, setCaptions] = useState<GeneratedCaption[]>([])
+  const [batchResults, setBatchResults] = useState<BatchRunResult[]>([])
   const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -69,10 +82,95 @@ export function TestFlavorClient({ flavors, imageSets, initialFlavorId }: TestFl
     return session.access_token
   }
 
+  const normalizeCaptions = (payload: unknown): GeneratedCaption[] => {
+    if (Array.isArray(payload)) {
+      return payload as GeneratedCaption[]
+    }
+
+    if (payload && typeof payload === 'object' && 'captions' in payload) {
+      const captionsPayload = (payload as { captions?: unknown }).captions
+      if (Array.isArray(captionsPayload)) {
+        return captionsPayload as GeneratedCaption[]
+      }
+    }
+
+    if (payload && typeof payload === 'object') {
+      return [payload as GeneratedCaption]
+    }
+
+    return []
+  }
+
+  const generateCaptionsForImage = async (imageId: string, token: string) => {
+    const captionRes = await fetch(`${API_BASE}/pipeline/generate-captions`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        imageId,
+        humorFlavorId: Number(flavorId),
+      }),
+    })
+
+    if (!captionRes.ok) {
+      const txt = await captionRes.text()
+      throw new Error(`Failed to generate captions: ${txt}`)
+    }
+
+    return normalizeCaptions(await captionRes.json())
+  }
+
+  const uploadAndRegisterImage = async (file: File, token: string) => {
+    const authHeaders = { Authorization: `Bearer ${token}` }
+    const contentType = file.type || 'image/jpeg'
+
+    setStageMessage('Getting presigned upload URL...')
+    const presignRes = await fetch(`${API_BASE}/pipeline/generate-presigned-url`, {
+      method: 'POST',
+      headers: { ...authHeaders, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contentType }),
+    })
+
+    if (!presignRes.ok) {
+      const txt = await presignRes.text()
+      throw new Error(`Failed to get presigned URL: ${txt}`)
+    }
+
+    const { presignedUrl, cdnUrl } = await presignRes.json()
+
+    setStageMessage('Uploading image...')
+    const uploadRes = await fetch(presignedUrl, {
+      method: 'PUT',
+      body: file,
+      headers: { 'Content-Type': contentType },
+    })
+
+    if (!uploadRes.ok) throw new Error('Failed to upload image')
+
+    setStageMessage('Registering image...')
+    const regRes = await fetch(`${API_BASE}/pipeline/upload-image-from-url`, {
+      method: 'POST',
+      headers: { ...authHeaders, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ imageUrl: cdnUrl, isCommonUse: false }),
+    })
+
+    if (!regRes.ok) {
+      const txt = await regRes.text()
+      throw new Error(`Failed to register image: ${txt}`)
+    }
+
+    const regData = await regRes.json()
+    return regData.imageId as string
+  }
+
   const handleSetChange = async (setId: string) => {
     setSelectedSetId(setId)
     setSelectedImageId('')
     setSetImages([])
+    setBatchResults([])
+    setCaptions([])
     if (!setId) return
 
     const supabase = createClient()
@@ -140,8 +238,81 @@ export function TestFlavorClient({ flavors, imageSets, initialFlavorId }: TestFl
       setStage('uploading')
       setError(null)
       setCaptions([])
+      setBatchResults([])
       const token = await getToken()
-      const authHeaders = { Authorization: `Bearer ${token}` }
+
+      if (imageSource === 'study-set' && studySetMode === 'batch') {
+        if (!selectedSetId || setImages.length === 0) {
+          setError('Please select a study image set with at least one image')
+          setStage('idle')
+          return
+        }
+
+        setStage('processing')
+        setStageMessage(`Processing 0/${setImages.length} images...`)
+        setBatchResults(
+          setImages.map((image) => ({
+            imageId: image.id,
+            imageUrl: image.url ?? null,
+            imageDescription: image.image_description ?? null,
+            additionalContext: image.additional_context ?? null,
+            status: 'pending',
+            captions: [],
+            error: null,
+          }))
+        )
+
+        let completedCount = 0
+
+        await Promise.all(
+          setImages.map(async (image) => {
+            setBatchResults((prev) =>
+              prev.map((result) =>
+                result.imageId === image.id
+                  ? { ...result, status: 'processing', error: null }
+                  : result
+              )
+            )
+
+            try {
+              const generatedCaptions = await generateCaptionsForImage(image.id, token)
+              completedCount += 1
+              setBatchResults((prev) =>
+                prev.map((result) =>
+                  result.imageId === image.id
+                    ? {
+                        ...result,
+                        status: 'done',
+                        captions: generatedCaptions,
+                        error: null,
+                      }
+                    : result
+                )
+              )
+            } catch (error) {
+              completedCount += 1
+              setBatchResults((prev) =>
+                prev.map((result) =>
+                  result.imageId === image.id
+                    ? {
+                        ...result,
+                        status: 'error',
+                        captions: [],
+                        error: error instanceof Error ? error.message : 'Generation failed',
+                      }
+                    : result
+                )
+              )
+            } finally {
+              setStageMessage(`Processing ${completedCount}/${setImages.length} images...`)
+            }
+          })
+        )
+
+        setStage('done')
+        setStageMessage(`Completed ${setImages.length} study-set image runs`)
+        return
+      }
 
       let imageId: string
 
@@ -152,69 +323,22 @@ export function TestFlavorClient({ flavors, imageSets, initialFlavorId }: TestFl
           return
         }
 
-        setStageMessage('Getting presigned upload URL...')
-        const presignRes = await fetch(`${API_BASE}/pipeline/generate-presigned-url`, {
-          method: 'POST',
-          headers: { ...authHeaders, 'Content-Type': 'application/json' },
-        })
-
-        if (!presignRes.ok) {
-          const txt = await presignRes.text()
-          throw new Error(`Failed to get presigned URL: ${txt}`)
-        }
-
-        const { presignedUrl, cdnUrl } = await presignRes.json()
-
-        setStageMessage('Uploading image...')
-        const uploadRes = await fetch(presignedUrl, {
-          method: 'PUT',
-          body: selectedFile,
-          headers: { 'Content-Type': selectedFile.type },
-        })
-
-        if (!uploadRes.ok) throw new Error('Failed to upload image')
-
-        setStageMessage('Registering image...')
-        const regRes = await fetch(`${API_BASE}/pipeline/upload-image-from-url`, {
-          method: 'POST',
-          headers: { ...authHeaders, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ imageUrl: cdnUrl, isCommonUse: false }),
-        })
-
-        if (!regRes.ok) {
-          const txt = await regRes.text()
-          throw new Error(`Failed to register image: ${txt}`)
-        }
-
-        const regData = await regRes.json()
-        imageId = regData.imageId
+        imageId = await uploadAndRegisterImage(selectedFile, token)
       } else {
         if (!selectedImageId) {
           setError('Please select an image from the study set')
           setStage('idle')
           return
         }
+
         imageId = selectedImageId
       }
 
       setStage('processing')
       setStageMessage('Generating captions...')
-
-      const captionRes = await fetch(`${API_BASE}/pipeline/generate-captions`, {
-        method: 'POST',
-        headers: { ...authHeaders, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageId, humorFlavorId: Number(flavorId) }),
-      })
-
-      if (!captionRes.ok) {
-        const txt = await captionRes.text()
-        throw new Error(`Failed to generate captions: ${txt}`)
-      }
-
-      const captionData = await captionRes.json()
-      const result = Array.isArray(captionData) ? captionData : captionData.captions ?? [captionData]
-      setCaptions(result)
+      setCaptions(await generateCaptionsForImage(imageId, token))
       setStage('done')
+      setStageMessage('Captions generated')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unexpected error occurred')
       setStage('error')
@@ -229,7 +353,7 @@ export function TestFlavorClient({ flavors, imageSets, initialFlavorId }: TestFl
     <div className="max-w-3xl space-y-6">
       {/* Progress Stepper — only when active */}
       {stage !== 'idle' && (
-        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5">
+        <div className="glass-surface rounded-[24px] p-5">
           <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-4">
             Pipeline Progress
           </p>
@@ -242,7 +366,7 @@ export function TestFlavorClient({ flavors, imageSets, initialFlavorId }: TestFl
       )}
 
       {/* Configuration Panel */}
-      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-5">
+      <div className="glass-surface rounded-[28px] p-6 space-y-5">
         <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">Configuration</h2>
 
         {/* Flavor selection */}
@@ -356,6 +480,47 @@ export function TestFlavorClient({ flavors, imageSets, initialFlavorId }: TestFl
         {imageSource === 'study-set' && (
           <div className="space-y-3">
             <div>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                Run Mode
+              </label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStudySetMode('single')
+                    setBatchResults([])
+                  }}
+                  disabled={isLoading}
+                  className={cn(
+                    'flex-1 py-2.5 rounded-lg text-sm font-medium border transition-all duration-200 disabled:opacity-60',
+                    studySetMode === 'single'
+                      ? 'bg-indigo-600 dark:bg-indigo-500 text-white border-transparent shadow-sm shadow-indigo-500/30'
+                      : 'border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:border-indigo-300 dark:hover:border-indigo-700'
+                  )}
+                >
+                  Single Image
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStudySetMode('batch')
+                    setSelectedImageId('')
+                    setCaptions([])
+                  }}
+                  disabled={isLoading}
+                  className={cn(
+                    'flex-1 py-2.5 rounded-lg text-sm font-medium border transition-all duration-200 disabled:opacity-60',
+                    studySetMode === 'batch'
+                      ? 'bg-indigo-600 dark:bg-indigo-500 text-white border-transparent shadow-sm shadow-indigo-500/30'
+                      : 'border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:border-indigo-300 dark:hover:border-indigo-700'
+                  )}
+                >
+                  Full Study Set
+                </button>
+              </div>
+            </div>
+
+            <div>
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
                 Study Image Set
               </label>
@@ -372,7 +537,7 @@ export function TestFlavorClient({ flavors, imageSets, initialFlavorId }: TestFl
               </select>
             </div>
 
-            {setImages.length > 0 && (
+            {setImages.length > 0 && studySetMode === 'single' && (
               <div>
                 <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                   Select Image
@@ -418,6 +583,25 @@ export function TestFlavorClient({ flavors, imageSets, initialFlavorId }: TestFl
                 </div>
               </div>
             )}
+
+            {setImages.length > 0 && studySetMode === 'batch' && (
+              <div className="rounded-[22px] border border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-950/40 p-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                      Run the entire study set
+                    </p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed">
+                      This will submit all {setImages.length} images in the selected set for the
+                      chosen flavor and show per-image results below as they finish.
+                    </p>
+                  </div>
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950 border border-indigo-200 dark:border-indigo-800 text-xs font-medium text-indigo-700 dark:text-indigo-300 whitespace-nowrap">
+                    {setImages.length} image{setImages.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -440,7 +624,9 @@ export function TestFlavorClient({ flavors, imageSets, initialFlavorId }: TestFl
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
-              Generate Captions
+              {imageSource === 'study-set' && studySetMode === 'batch'
+                ? 'Generate Captions for Study Set'
+                : 'Generate Captions'}
             </>
           )}
         </button>
@@ -448,7 +634,7 @@ export function TestFlavorClient({ flavors, imageSets, initialFlavorId }: TestFl
 
       {/* Error */}
       {error && (
-        <div className="rounded-xl bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 p-4">
+        <div className="rounded-[22px] border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950">
           <div className="flex items-start gap-3">
             <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -458,9 +644,127 @@ export function TestFlavorClient({ flavors, imageSets, initialFlavorId }: TestFl
         </div>
       )}
 
+      {batchResults.length > 0 && (
+        <div className="glass-surface rounded-[28px] p-6">
+          <div className="flex items-center justify-between gap-4 mb-5">
+            <div>
+              <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                Study Set Results
+              </h2>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+                {batchResults.filter((result) => result.status === 'done').length} of{' '}
+                {batchResults.length} completed
+              </p>
+            </div>
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-xs font-medium text-zinc-600 dark:text-zinc-300">
+              {batchResults.filter((result) => result.status === 'error').length} error
+              {batchResults.filter((result) => result.status === 'error').length !== 1 ? 's' : ''}
+            </span>
+          </div>
+
+          <div className="space-y-4">
+            {batchResults.map((result, index) => (
+              <motion.div
+                key={result.imageId}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, delay: Math.min(index * 0.04, 0.3) }}
+                className="overflow-hidden rounded-[24px] border border-zinc-200 dark:border-zinc-800"
+              >
+                <div className="flex items-start gap-4 bg-zinc-50/80 p-4 dark:bg-zinc-950/40">
+                  <div className="w-20 h-20 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex-shrink-0">
+                    {result.imageUrl ? (
+                      <img
+                        src={result.imageUrl}
+                        alt={result.imageDescription ?? 'Study set image'}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-zinc-400 dark:text-zinc-500">
+                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                        {result.imageDescription ?? `Image ${index + 1}`}
+                      </span>
+                      <span
+                        className={cn(
+                          'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium',
+                          result.status === 'done' &&
+                            'bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300',
+                          result.status === 'processing' &&
+                            'bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300',
+                          result.status === 'pending' &&
+                            'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300',
+                          result.status === 'error' &&
+                            'bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300'
+                        )}
+                      >
+                        {result.status}
+                      </span>
+                    </div>
+
+                    {result.additionalContext && (
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2">
+                        {result.additionalContext}
+                      </p>
+                    )}
+
+                    {result.status === 'processing' && (
+                      <p className="text-xs text-blue-600 dark:text-blue-300 mt-2">
+                        Generating captions...
+                      </p>
+                    )}
+
+                    {result.status === 'error' && result.error && (
+                      <p className="text-xs text-red-600 dark:text-red-300 mt-2">
+                        {result.error}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {result.captions.length > 0 && (
+                  <div className="p-4 space-y-2 bg-white dark:bg-zinc-900">
+                    {result.captions.map((caption, captionIndex) => {
+                      const captionText = caption.content ?? JSON.stringify(caption)
+                      return (
+                        <div
+                          key={caption.id ?? `${result.imageId}-${captionIndex}`}
+                          className="group relative rounded-lg bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 p-3 pr-10"
+                        >
+                          <p className="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed">
+                            {captionText}
+                          </p>
+                          <button
+                            onClick={() => handleCopy(captionText)}
+                            className="absolute top-2.5 right-2.5 p-1.5 rounded-md text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all opacity-0 group-hover:opacity-100"
+                            aria-label="Copy caption"
+                          >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                          </button>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Results */}
       {stage === 'done' && captions.length > 0 && (
-        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6">
+        <div className="glass-surface rounded-[28px] p-6">
           <div className="flex items-center gap-2 mb-5">
             <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
               <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -505,8 +809,8 @@ export function TestFlavorClient({ flavors, imageSets, initialFlavorId }: TestFl
         </div>
       )}
 
-      {stage === 'done' && captions.length === 0 && (
-        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 text-center">
+      {stage === 'done' && captions.length === 0 && batchResults.length === 0 && (
+        <div className="glass-surface rounded-[24px] p-6 text-center">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
             Pipeline completed but no captions were returned.
           </p>

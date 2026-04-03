@@ -1,23 +1,49 @@
-import { FlavorForm } from '@/components/FlavorForm'
+import { createClient } from '@/lib/supabase-server'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { AnimatedPage } from '@/components/AnimatedPage'
+import { AppShell } from '@/components/AppShell'
+import { PageHeader } from '@/components/PageHeader'
+import { NewFlavorBuilder } from '@/components/NewFlavorBuilder'
 
-export default function NewFlavorPage() {
+export const dynamic = 'force-dynamic'
+
+export default async function NewFlavorPage() {
+  const supabase = await createClient()
+
+  const [
+    { data: models },
+    { data: inputTypes },
+    { data: outputTypes },
+    { data: stepTypes },
+  ] = await Promise.all([
+    supabase.from('llm_models').select('*').order('name'),
+    supabase.from('llm_input_types').select('*').order('description'),
+    supabase.from('llm_output_types').select('*').order('description'),
+    supabase.from('humor_flavor_step_types').select('*').order('slug'),
+  ])
+
   return (
     <AnimatedPage>
-      <div className="p-8 max-w-2xl">
+      <AppShell className="max-w-6xl">
         <div className="mb-8">
           <Breadcrumbs items={[{ label: 'Flavors', href: '/flavors' }, { label: 'New Flavor' }]} />
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">New Humor Flavor</h1>
-          <p className="text-zinc-500 dark:text-zinc-400 mt-1">
-            Create a new humor flavor with a unique slug
-          </p>
         </div>
 
-        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6">
-          <FlavorForm />
-        </div>
-      </div>
+        <PageHeader
+          eyebrow="Create"
+          title="New Humor Flavor"
+          description="Create the flavor identity and author the full chained prompt pipeline in one pass."
+          badge="Pipeline builder"
+          className="mb-8"
+        />
+
+        <NewFlavorBuilder
+          models={models ?? []}
+          inputTypes={inputTypes ?? []}
+          outputTypes={outputTypes ?? []}
+          stepTypes={stepTypes ?? []}
+        />
+      </AppShell>
     </AnimatedPage>
   )
 }
