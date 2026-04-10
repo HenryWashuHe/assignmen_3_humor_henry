@@ -7,7 +7,7 @@ export default function FlavorDetailLoading() {
         <Skeleton className="h-4 w-28 mb-4" />
       </div>
 
-      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 mb-6">
+      <div className="bg-white dark:bg-[#33332e] rounded-xl border border-[#e5e5e0] dark:border-[#3e3e39] p-6 mb-6">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
@@ -44,7 +44,7 @@ export default function FlavorDetailLoading() {
         {[0, 1, 2].map((i) => (
           <div
             key={i}
-            className="flex items-start gap-3 p-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800"
+            className="flex items-start gap-3 p-4 bg-white dark:bg-[#33332e] rounded-xl border border-[#e5e5e0] dark:border-[#3e3e39]"
           >
             <Skeleton className="h-5 w-5 mt-0.5" />
             <Skeleton className="h-7 w-7 rounded-full" />

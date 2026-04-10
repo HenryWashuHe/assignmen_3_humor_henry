@@ -23,19 +23,19 @@ function StatsChartInner({ data }: StatsChartProps) {
 
   if (!mounted) {
     return (
-      <div className="h-48 flex items-center justify-center text-zinc-400 dark:text-zinc-500 text-sm">
+      <div className="h-48 flex items-center justify-center text-[#91918c] text-sm">
         Loading chart...
       </div>
     )
   }
 
   const isDark = resolvedTheme === 'dark'
-  const accentColor = isDark ? '#818cf8' : '#6366f1'
+  const accentColor = isDark ? '#ff4d6a' : '#e60023'
   const fillId = 'statsChartFill'
 
   if (data.length === 0) {
     return (
-      <div className="h-48 flex items-center justify-center text-zinc-400 dark:text-zinc-500 text-sm">
+      <div className="h-48 flex items-center justify-center text-[#91918c] text-sm">
         No data available
       </div>
     )
@@ -64,24 +64,24 @@ function StatsChartInner({ data }: StatsChartProps) {
         </defs>
         <XAxis
           dataKey="date"
-          tick={{ fontSize: 11, fill: isDark ? '#71717a' : '#a1a1aa' }}
+          tick={{ fontSize: 11, fill: isDark ? '#62625b' : '#91918c' }}
           axisLine={false}
           tickLine={false}
           interval="preserveStartEnd"
         />
         <YAxis
-          tick={{ fontSize: 11, fill: isDark ? '#71717a' : '#a1a1aa' }}
+          tick={{ fontSize: 11, fill: isDark ? '#62625b' : '#91918c' }}
           axisLine={false}
           tickLine={false}
           allowDecimals={false}
         />
         <Tooltip
           contentStyle={{
-            backgroundColor: isDark ? '#18181b' : '#ffffff',
-            border: `1px solid ${isDark ? '#27272a' : '#e4e4e7'}`,
-            borderRadius: '8px',
+            backgroundColor: isDark ? '#33332e' : '#ffffff',
+            border: `1px solid ${isDark ? '#3e3e39' : '#e5e5e0'}`,
+            borderRadius: '16px',
             fontSize: '12px',
-            color: isDark ? '#f4f4f5' : '#18181b',
+            color: isDark ? '#f6f6f3' : '#211922',
           }}
           itemStyle={{ color: accentColor }}
           cursor={{ stroke: accentColor, strokeWidth: 1, strokeDasharray: '4 4' }}

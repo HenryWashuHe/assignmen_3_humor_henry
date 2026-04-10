@@ -29,10 +29,10 @@ export function ProgressStepper({
                 className={cn(
                   'w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all duration-300',
                   isCompleted && 'bg-green-500 border-green-500 text-white',
-                  isActive && 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400',
+                  isActive && 'border-[#e60023] bg-[#e60023]/8 dark:bg-[#e60023]/15 text-[#e60023] dark:text-[#ff4d6a]',
                   isDone && 'bg-green-500 border-green-500 text-white',
                   isError && 'bg-red-500 border-red-500 text-white',
-                  !isCompleted && !isActive && !isDone && !isError && 'border-zinc-300 dark:border-zinc-700 text-zinc-400 dark:text-zinc-600'
+                  !isCompleted && !isActive && !isDone && !isError && 'border-[#e5e5e0] dark:border-[#3e3e39] text-[#91918c]'
                 )}
               >
                 {isCompleted || isDone ? (
@@ -55,10 +55,10 @@ export function ProgressStepper({
               <span
                 className={cn(
                   'text-xs font-medium whitespace-nowrap',
-                  isActive && 'text-indigo-600 dark:text-indigo-400',
+                  isActive && 'text-[#e60023] dark:text-[#ff4d6a]',
                   isCompleted || isDone ? 'text-green-600 dark:text-green-400' : '',
                   isError && 'text-red-600 dark:text-red-400',
-                  !isActive && !isCompleted && !isDone && !isError && 'text-zinc-400 dark:text-zinc-600'
+                  !isActive && !isCompleted && !isDone && !isError && 'text-[#91918c]'
                 )}
               >
                 {step}
@@ -72,7 +72,7 @@ export function ProgressStepper({
                   'flex-1 h-0.5 mx-2 mt-[-1rem] transition-all duration-500',
                   index < currentStep
                     ? 'bg-green-400 dark:bg-green-600'
-                    : 'bg-zinc-200 dark:bg-zinc-700'
+                    : 'bg-[#e5e5e0] dark:bg-[#3e3e39]'
                 )}
               />
             )}

@@ -12,7 +12,7 @@ export default function DashboardLoading() {
         {[0, 1, 2].map((i) => (
           <div
             key={i}
-            className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-3"
+            className="bg-white dark:bg-[#33332e] rounded-xl border border-[#e5e5e0] dark:border-[#3e3e39] p-6 space-y-3"
           >
             <div className="flex items-start justify-between">
               <Skeleton className="h-4 w-24" />
@@ -22,19 +22,19 @@ export default function DashboardLoading() {
             <Skeleton className="h-4 w-32" />
           </div>
         ))}
-        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 col-span-full">
+        <div className="bg-white dark:bg-[#33332e] rounded-xl border border-[#e5e5e0] dark:border-[#3e3e39] p-6 col-span-full">
           <Skeleton className="h-5 w-40 mb-4" />
           <Skeleton className="h-48 w-full rounded-lg" />
         </div>
       </div>
 
-      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800">
-        <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+      <div className="bg-white dark:bg-[#33332e] rounded-xl border border-[#e5e5e0] dark:border-[#3e3e39]">
+        <div className="px-6 py-4 border-b border-[#e5e5e0] dark:border-[#3e3e39] flex items-center justify-between">
           <Skeleton className="h-5 w-32" />
           <Skeleton className="h-4 w-16" />
         </div>
         {[0, 1, 2, 3, 4].map((i) => (
-          <div key={i} className="px-6 py-4 flex items-center gap-4 border-b border-zinc-100 dark:border-zinc-800 last:border-0">
+          <div key={i} className="px-6 py-4 flex items-center gap-4 border-b border-[#e5e5e0] dark:border-[#3e3e39] last:border-0">
             <div className="flex-1">
               <Skeleton className="h-4 w-32 mb-1" />
               <Skeleton className="h-3 w-48" />

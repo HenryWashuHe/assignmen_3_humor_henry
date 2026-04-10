@@ -54,7 +54,7 @@ export function DeleteConfirm({ label, onConfirm, onCancel }: DeleteConfirmProps
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 8 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="relative w-full max-w-sm bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-800 p-6"
+        className="relative w-full max-w-sm bg-white dark:bg-[#33332e] rounded-[20px] shadow-2xl border border-[#e5e5e0] dark:border-[#3e3e39] p-6"
       >
         <div className="flex items-center gap-3 mb-4">
           <div className="flex items-center justify-center w-10 h-10 rounded-full bg-red-100 dark:bg-red-950">
@@ -63,14 +63,14 @@ export function DeleteConfirm({ label, onConfirm, onCancel }: DeleteConfirmProps
             </svg>
           </div>
           <div>
-            <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+            <h3 className="text-base font-semibold text-[#211922] dark:text-[#f6f6f3]">
               Confirm Delete
             </h3>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">This action cannot be undone</p>
+            <p className="text-sm text-[#91918c]">This action cannot be undone</p>
           </div>
         </div>
 
-        <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-4">
+        <p className="text-sm text-[#62625b] dark:text-[#b4b4ad] mb-4">
           Are you sure you want to delete <strong>{label}</strong>?
         </p>
 
@@ -84,7 +84,7 @@ export function DeleteConfirm({ label, onConfirm, onCancel }: DeleteConfirmProps
           <button
             onClick={handleConfirm}
             disabled={loading}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-[16px] bg-[#e60023] hover:bg-[#c9001e] text-white text-sm font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading ? (
               <>
@@ -99,7 +99,7 @@ export function DeleteConfirm({ label, onConfirm, onCancel }: DeleteConfirmProps
           <button
             onClick={onCancel}
             disabled={loading}
-            className="flex-1 px-4 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+            className="flex-1 px-4 py-2.5 rounded-[16px] bg-[#e5e5e0] dark:bg-[#3e3e39] text-[#211922] dark:text-[#f6f6f3] text-sm font-medium hover:bg-[#d5d5d0] dark:hover:bg-[#4a4a44] transition-colors"
           >
             Cancel
           </button>

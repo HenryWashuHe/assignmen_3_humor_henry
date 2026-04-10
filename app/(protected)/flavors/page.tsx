@@ -41,7 +41,7 @@ export default async function FlavorsPage() {
             actions={
               <Link
                 href="/flavors/new"
-                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-sky-500 via-cyan-500 to-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_18px_40px_-22px_rgba(14,165,233,0.95)] transition-all hover:-translate-y-0.5 hover:brightness-105"
+                className="inline-flex items-center gap-2 rounded-[16px] bg-[#e60023] px-4 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-[#c9001e]"
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -52,8 +52,8 @@ export default async function FlavorsPage() {
           />
 
           {error && (
-            <div className="rounded-2xl border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950/40">
-              <p className="text-sm text-red-700 dark:text-red-300">Failed to load flavors: {error.message}</p>
+            <div className="rounded-[20px] border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950/40">
+              <p className="text-sm text-[#9e0a0a] dark:text-red-300">Failed to load flavors: {error.message}</p>
             </div>
           )}
 

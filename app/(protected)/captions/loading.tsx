@@ -10,7 +10,7 @@ export default function CaptionsLoading() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 mb-6">
+      <div className="bg-white dark:bg-[#33332e] rounded-xl border border-[#e5e5e0] dark:border-[#3e3e39] p-4 mb-6">
         <Skeleton className="h-3 w-24 mb-3" />
         <div className="flex gap-2">
           {[0, 1, 2, 3].map((i) => (
@@ -23,7 +23,7 @@ export default function CaptionsLoading() {
         {[0, 1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className="flex gap-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4"
+            className="flex gap-4 bg-white dark:bg-[#33332e] rounded-xl border border-[#e5e5e0] dark:border-[#3e3e39] p-4"
           >
             <Skeleton className="w-16 h-16 rounded-lg flex-shrink-0" />
             <div className="flex-1 min-w-0">

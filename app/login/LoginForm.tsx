@@ -38,10 +38,10 @@ export function LoginForm() {
       <button
         onClick={handleGoogleSignIn}
         disabled={loading}
-        className="flex w-full items-center justify-center gap-3 rounded-2xl bg-white px-4 py-3.5 font-medium text-zinc-900 shadow-lg shadow-black/20 transition-all duration-200 hover:-translate-y-0.5 hover:bg-zinc-50 hover:shadow-xl hover:shadow-black/30 disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex w-full items-center justify-center gap-3 rounded-[16px] bg-white px-4 py-3.5 font-medium text-[#211922] shadow-lg shadow-black/20 transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#f6f6f3] hover:shadow-xl hover:shadow-black/30 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loading ? (
-          <svg className="animate-spin h-5 w-5 text-zinc-600" viewBox="0 0 24 24" fill="none">
+          <svg className="animate-spin h-5 w-5 text-[#62625b]" viewBox="0 0 24 24" fill="none">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>

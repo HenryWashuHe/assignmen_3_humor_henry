@@ -15,7 +15,7 @@ function KbdShortcut() {
   }, [])
 
   return (
-    <kbd className="px-1.5 py-0.5 rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-[10px] font-medium">
+    <kbd className="px-1.5 py-0.5 rounded border border-[#e5e5e0] dark:border-[#3e3e39] bg-white dark:bg-[#3e3e39] text-[10px] font-medium text-[#62625b] dark:text-[#b4b4ad]">
       {mounted ? (isMac ? '\u2318K' : 'Ctrl+K') : '\u00A0\u00A0\u00A0'}
     </kbd>
   )
@@ -97,14 +97,14 @@ export function Sidebar({ profile }: SidebarProps) {
     <motion.aside
       animate={{ width: collapsed ? 72 : 256 }}
       transition={{ duration: 0.25, ease: 'easeInOut' }}
-      className="glass-surface flex min-h-screen flex-col overflow-hidden border-r border-white/60 dark:border-white/8 flex-shrink-0"
+      className="glass-surface flex min-h-screen flex-col overflow-hidden border-r border-[#e5e5e0] dark:border-[#3e3e39] flex-shrink-0"
     >
       {/* Logo — gradient accent */}
-      <div className="border-b border-zinc-200/70 px-4 py-5 dark:border-zinc-800/80 bg-[radial-gradient(circle_at_top_left,rgba(14,165,233,0.12),transparent_40%),linear-gradient(180deg,rgba(255,255,255,0.7),transparent)] dark:bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.16),transparent_40%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent)]">
+      <div className="border-b border-[#e5e5e0] px-4 py-5 dark:border-[#3e3e39]">
         <div className="flex items-center gap-3">
           <div className="relative flex-shrink-0">
-            <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 blur opacity-40" />
-            <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600">
+            <div className="absolute inset-0 rounded-lg bg-[#e60023] blur opacity-30" />
+            <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-[#e60023]">
               <span className="text-sm font-bold text-white">M</span>
             </div>
           </div>
@@ -117,14 +117,14 @@ export function Sidebar({ profile }: SidebarProps) {
                 transition={{ duration: 0.2 }}
                 className="overflow-hidden"
               >
-                <h1 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 whitespace-nowrap">The Matrix</h1>
-                <p className="text-xs text-zinc-400 dark:text-zinc-500 whitespace-nowrap">Humor Flavors</p>
+                <h1 className="text-sm font-bold text-[#211922] dark:text-[#f6f6f3] whitespace-nowrap">The Matrix</h1>
+                <p className="text-xs text-[#91918c] whitespace-nowrap">Humor Flavors</p>
               </motion.div>
             )}
           </AnimatePresence>
           <button
             onClick={() => setCollapsed((c) => !c)}
-            className="ml-auto p-1 rounded text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex-shrink-0 hidden lg:flex"
+            className="ml-auto p-1 rounded text-[#91918c] hover:text-[#211922] dark:hover:text-[#f6f6f3] hover:bg-[#e5e5e0] dark:hover:bg-[#3e3e39] transition-colors flex-shrink-0 hidden lg:flex"
             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -145,7 +145,7 @@ export function Sidebar({ profile }: SidebarProps) {
             onClick={() => {
               window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))
             }}
-            className="w-full flex items-center gap-2 rounded-xl border border-white/70 bg-white/70 px-3 py-2 text-xs text-zinc-500 shadow-sm backdrop-blur dark:border-white/8 dark:bg-zinc-900/70 dark:text-zinc-400 hover:border-sky-300 dark:hover:border-sky-700 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
+            className="w-full flex items-center gap-2 rounded-[16px] border border-[#e5e5e0] bg-white/80 px-3 py-2 text-xs text-[#91918c] backdrop-blur dark:border-[#3e3e39] dark:bg-[#3e3e39]/70 dark:text-[#b4b4ad] hover:border-[#91918c] dark:hover:border-[#62625b] hover:text-[#211922] dark:hover:text-[#f6f6f3] transition-colors"
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -170,18 +170,18 @@ export function Sidebar({ profile }: SidebarProps) {
                 'relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors group',
                 isActive
                   ? 'text-white'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
+                  : 'text-[#62625b] dark:text-[#b4b4ad] hover:text-[#211922] dark:hover:text-[#f6f6f3]'
               )}
             >
               {isActive && (
                 <motion.span
                   layoutId="nav-indicator"
-                  className="absolute inset-0 rounded-xl bg-gradient-to-r from-sky-500 via-cyan-500 to-emerald-500 -z-10 shadow-[0_16px_40px_-24px_rgba(14,165,233,0.9)]"
+                  className="absolute inset-0 rounded-xl bg-[#e60023] -z-10"
                   transition={{ duration: 0.2, ease: 'easeInOut' }}
                 />
               )}
               {!isActive && (
-                <span className="absolute inset-0 rounded-xl bg-zinc-100/90 dark:bg-zinc-800/90 opacity-0 group-hover:opacity-100 transition-opacity -z-10" />
+                <span className="absolute inset-0 rounded-xl bg-[#e5e5e0]/80 dark:bg-[#3e3e39]/80 opacity-0 group-hover:opacity-100 transition-opacity -z-10" />
               )}
               <span className="flex-shrink-0 relative z-10">{item.icon}</span>
               <AnimatePresence>
@@ -203,10 +203,10 @@ export function Sidebar({ profile }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="space-y-3 border-t border-zinc-200/70 px-2 py-4 dark:border-zinc-800/80">
+      <div className="space-y-3 border-t border-[#e5e5e0] px-2 py-4 dark:border-[#3e3e39]">
         {!collapsed && (
           <div className="flex items-center justify-between px-1">
-            <span className="text-xs text-zinc-500 dark:text-zinc-400">Theme</span>
+            <span className="text-xs text-[#91918c]">Theme</span>
             <ThemeToggle />
           </div>
         )}
@@ -218,8 +218,8 @@ export function Sidebar({ profile }: SidebarProps) {
 
         <div className={cn('flex items-center gap-3 px-1', collapsed && 'justify-center')}>
           <div className="relative flex-shrink-0">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800">
-              <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300">{initials}</span>
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#e5e5e0] dark:bg-[#3e3e39] border border-[#e0e0d9] dark:border-[#4a4a44]">
+              <span className="text-xs font-semibold text-[#211922] dark:text-[#f6f6f3]">{initials}</span>
             </div>
             {/* Pulsing green dot */}
             <span className="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5">
@@ -236,8 +236,8 @@ export function Sidebar({ profile }: SidebarProps) {
                 transition={{ duration: 0.2 }}
                 className="flex-1 min-w-0 overflow-hidden"
               >
-                <p className="text-xs font-medium text-zinc-900 dark:text-zinc-100 truncate">{displayName}</p>
-                <p className="text-xs text-zinc-400 dark:text-zinc-500 whitespace-nowrap">{role}</p>
+                <p className="text-xs font-medium text-[#211922] dark:text-[#f6f6f3] truncate">{displayName}</p>
+                <p className="text-xs text-[#91918c] whitespace-nowrap">{role}</p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -246,8 +246,8 @@ export function Sidebar({ profile }: SidebarProps) {
         <button
           onClick={handleSignOut}
           className={cn(
-            'w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-zinc-600 dark:text-zinc-400',
-            'hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/60 dark:hover:text-red-400 transition-colors',
+            'w-full flex items-center gap-2 px-3 py-2 rounded-[16px] text-sm text-[#62625b] dark:text-[#b4b4ad]',
+            'hover:bg-[#e60023]/8 hover:text-[#e60023] dark:hover:bg-[#e60023]/15 dark:hover:text-[#ff4d6a] transition-colors',
             collapsed && 'justify-center px-2'
           )}
         >
@@ -277,10 +277,10 @@ export function Sidebar({ profile }: SidebarProps) {
       {/* Mobile hamburger */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="glass-surface fixed left-4 top-4 z-50 rounded-xl p-2 lg:hidden"
+        className="glass-surface fixed left-4 top-4 z-50 rounded-[16px] p-2 lg:hidden"
         aria-label="Open menu"
       >
-        <svg className="w-5 h-5 text-zinc-700 dark:text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <svg className="w-5 h-5 text-[#211922] dark:text-[#f6f6f3]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
@@ -308,21 +308,21 @@ export function Sidebar({ profile }: SidebarProps) {
               transition={{ duration: 0.25, ease: 'easeInOut' }}
               className="fixed left-0 top-0 bottom-0 z-50 flex lg:hidden"
             >
-              <aside className="glass-surface flex min-h-screen w-64 flex-col border-r border-white/60 dark:border-white/8">
-                <div className="flex items-center gap-3 border-b border-zinc-200/70 px-4 py-5 dark:border-zinc-800/80 bg-[radial-gradient(circle_at_top_left,rgba(14,165,233,0.12),transparent_40%),linear-gradient(180deg,rgba(255,255,255,0.7),transparent)] dark:bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.16),transparent_40%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent)]">
+              <aside className="glass-surface flex min-h-screen w-64 flex-col border-r border-[#e5e5e0] dark:border-[#3e3e39]">
+                <div className="flex items-center gap-3 border-b border-[#e5e5e0] px-4 py-5 dark:border-[#3e3e39]">
                   <div className="relative flex-shrink-0">
-                    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 blur opacity-40" />
-                    <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600">
+                    <div className="absolute inset-0 rounded-lg bg-[#e60023] blur opacity-30" />
+                    <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-[#e60023]">
                       <span className="text-sm font-bold text-white">M</span>
                     </div>
                   </div>
                   <div>
-                    <h1 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">The Matrix</h1>
-                    <p className="text-xs text-zinc-400 dark:text-zinc-500">Humor Flavors</p>
+                    <h1 className="text-sm font-bold text-[#211922] dark:text-[#f6f6f3]">The Matrix</h1>
+                    <p className="text-xs text-[#91918c]">Humor Flavors</p>
                   </div>
                   <button
                     onClick={() => setMobileOpen(false)}
-                    className="ml-auto p-1 rounded text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+                    className="ml-auto p-1 rounded text-[#91918c] hover:text-[#211922] dark:hover:text-[#f6f6f3]"
                   >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -341,8 +341,8 @@ export function Sidebar({ profile }: SidebarProps) {
                         className={cn(
                           'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
                           isActive
-                            ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-sm shadow-indigo-500/30'
-                            : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100'
+                            ? 'bg-[#e60023] text-white'
+                            : 'text-[#62625b] dark:text-[#b4b4ad] hover:bg-[#e5e5e0] dark:hover:bg-[#3e3e39] hover:text-[#211922] dark:hover:text-[#f6f6f3]'
                         )}
                       >
                         {item.icon}
@@ -351,15 +351,15 @@ export function Sidebar({ profile }: SidebarProps) {
                     )
                   })}
                 </nav>
-                <div className="px-2 py-4 border-t border-zinc-200 dark:border-zinc-800 space-y-3">
+                <div className="px-2 py-4 border-t border-[#e5e5e0] dark:border-[#3e3e39] space-y-3">
                   <div className="flex items-center justify-between px-1">
-                    <span className="text-xs text-zinc-500 dark:text-zinc-400">Theme</span>
+                    <span className="text-xs text-[#91918c]">Theme</span>
                     <ThemeToggle />
                   </div>
                   <div className="flex items-center gap-3 px-1">
                     <div className="relative flex-shrink-0">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800">
-                        <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300">{initials}</span>
+                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#e5e5e0] dark:bg-[#3e3e39] border border-[#e0e0d9] dark:border-[#4a4a44]">
+                        <span className="text-xs font-semibold text-[#211922] dark:text-[#f6f6f3]">{initials}</span>
                       </div>
                       <span className="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
@@ -367,13 +367,13 @@ export function Sidebar({ profile }: SidebarProps) {
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-zinc-900 dark:text-zinc-100 truncate">{displayName}</p>
-                      <p className="text-xs text-zinc-400 dark:text-zinc-500">{role}</p>
+                      <p className="text-xs font-medium text-[#211922] dark:text-[#f6f6f3] truncate">{displayName}</p>
+                      <p className="text-xs text-[#91918c]">{role}</p>
                     </div>
                   </div>
                   <button
                     onClick={handleSignOut}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-zinc-600 dark:text-zinc-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/60 dark:hover:text-red-400 transition-colors"
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-[16px] text-sm text-[#62625b] dark:text-[#b4b4ad] hover:bg-[#e60023]/8 hover:text-[#e60023] dark:hover:bg-[#e60023]/15 dark:hover:text-[#ff4d6a] transition-colors"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

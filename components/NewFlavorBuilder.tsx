@@ -700,16 +700,16 @@ export function NewFlavorBuilder({
   }
 
   const inputClass = cn(
-    'w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700',
-    'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100',
-    'focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400',
+    'w-full px-3 py-2 rounded-[16px] border border-[#e5e5e0] dark:border-[#3e3e39]',
+    'bg-white dark:bg-[#33332e] text-[#211922] dark:text-[#f6f6f3]',
+    'focus:outline-none focus:ring-2 focus:ring-[#e60023]/40 dark:focus:ring-[#e60023]/30',
     'text-sm transition-shadow'
   )
 
   const promptClass = cn(
     inputClass,
-    'font-mono text-xs bg-zinc-50 dark:bg-zinc-900/80 resize-y',
-    'placeholder-zinc-400 dark:placeholder-zinc-600'
+    'font-mono text-xs bg-[#f6f6f3] dark:bg-[#2a2a25] resize-y',
+    'placeholder-[#91918c] dark:placeholder-[#62625b]'
   )
 
   return (
@@ -722,17 +722,17 @@ export function NewFlavorBuilder({
 
       <div className="glass-surface rounded-[28px] p-6 space-y-4">
         <div>
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+          <h2 className="text-lg font-semibold text-[#211922] dark:text-[#f6f6f3]">
             Flavor Identity
           </h2>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+          <p className="text-sm text-[#91918c] mt-1">
             Define the flavor itself, then author the full joke-generation pipeline below.
           </p>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-            Slug <span className="text-red-500">*</span>
+          <label className="block text-sm font-medium text-[#62625b] dark:text-[#b4b4ad] mb-1">
+            Slug <span className="text-[#e60023]">*</span>
           </label>
           <input
             type="text"
@@ -745,7 +745,7 @@ export function NewFlavorBuilder({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+          <label className="block text-sm font-medium text-[#62625b] dark:text-[#b4b4ad] mb-1">
             Description
           </label>
           <textarea
@@ -761,10 +761,10 @@ export function NewFlavorBuilder({
       <div className="glass-surface rounded-[28px] p-6 space-y-4">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+            <h2 className="text-lg font-semibold text-[#211922] dark:text-[#f6f6f3]">
               Pipeline Steps
             </h2>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+            <p className="text-sm text-[#91918c] mt-1">
               Build the actual multi-step chain users expect: recognition, description, caption
               generation, and any extra style/context steps.
             </p>
@@ -773,7 +773,7 @@ export function NewFlavorBuilder({
             <button
               type="button"
               onClick={loadStarterPipeline}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/30 text-sm font-medium transition-colors"
+              className="flex items-center gap-2 px-3 py-2 rounded-[16px] border border-[#e5e5e0] dark:border-[#3e3e39] text-[#62625b] dark:text-[#b4b4ad] bg-[#f6f6f3] dark:bg-[#3e3e39]/50 text-sm font-medium transition-colors hover:bg-[#e5e5e0] dark:hover:bg-[#3e3e39]"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -783,7 +783,7 @@ export function NewFlavorBuilder({
             <button
               type="button"
               onClick={loadColumbiaReflectivePreset}
-              className="flex items-center gap-2 rounded-lg border border-sky-300 bg-sky-50 px-3 py-2 text-sm font-medium text-sky-800 transition-colors dark:border-sky-800 dark:bg-sky-950/30 dark:text-sky-200"
+              className="flex items-center gap-2 rounded-[16px] border border-[#e5e5e0] dark:border-[#3e3e39] bg-[#f6f6f3] dark:bg-[#3e3e39]/50 px-3 py-2 text-sm font-medium text-[#62625b] dark:text-[#b4b4ad] transition-colors hover:bg-[#e5e5e0] dark:hover:bg-[#3e3e39]"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h8M8 12h8m-8 5h5M6 4h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2z" />
@@ -793,7 +793,7 @@ export function NewFlavorBuilder({
             <button
               type="button"
               onClick={addDraftStep}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white text-sm font-medium transition-colors"
+              className="flex items-center gap-2 px-3 py-2 rounded-[16px] bg-[#e60023] hover:bg-[#c9001e] text-white text-sm font-medium transition-colors"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -803,24 +803,24 @@ export function NewFlavorBuilder({
           </div>
         </div>
 
-        <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/40 p-4">
-          <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+        <div className="rounded-[20px] border border-[#e5e5e0] dark:border-[#3e3e39] bg-[#f6f6f3] dark:bg-[#2a2a25] p-4">
+          <p className="text-sm font-medium text-[#211922] dark:text-[#f6f6f3]">
             Starter pipeline available
           </p>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed">
+          <p className="text-xs text-[#91918c] mt-1 leading-relaxed">
             Use <span className="font-medium">Load Starter Pipeline</span> to prefill a
             3-step Matrix chain with celebrity recognition, image description, and caption
             generation prompts using the variables you described.
           </p>
-          <p className="mt-2 text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
+          <p className="mt-2 text-xs leading-relaxed text-[#91918c]">
             Use <span className="font-medium">Load Columbia Roast Loop</span> for a sharper preset:
             recognition, description, Columbia/Sidechat angle generation, critic step, and final rewrite.
           </p>
         </div>
 
         {draftSteps.length === 0 ? (
-          <div className="rounded-[24px] border border-dashed border-zinc-300 dark:border-zinc-700 p-8 text-center">
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <div className="rounded-[24px] border border-dashed border-[#e5e5e0] dark:border-[#3e3e39] p-8 text-center">
+            <p className="text-sm text-[#91918c]">
               No steps yet. Add the recognition/description/caption steps you want this flavor to run.
             </p>
           </div>
@@ -835,17 +835,17 @@ export function NewFlavorBuilder({
               return (
                 <div
                   key={draft.draftId}
-                  className="overflow-hidden rounded-[24px] border border-zinc-200/80 dark:border-zinc-800/80 bg-white/70 dark:bg-zinc-900/60"
+                  className="overflow-hidden rounded-[24px] border border-[#e5e5e0] dark:border-[#3e3e39] bg-white/70 dark:bg-[#33332e]/60"
                 >
-                  <div className="flex items-center gap-3 p-4 bg-zinc-50 dark:bg-zinc-950/40">
-                    <div className="w-7 h-7 rounded-full bg-indigo-50 dark:bg-indigo-950 border border-indigo-200 dark:border-indigo-800 flex items-center justify-center text-xs font-semibold text-indigo-700 dark:text-indigo-300">
+                  <div className="flex items-center gap-3 p-4 bg-[#f6f6f3] dark:bg-[#2a2a25]">
+                    <div className="w-7 h-7 rounded-full bg-[#e60023]/10 dark:bg-[#e60023]/20 border border-[#e60023]/20 dark:border-[#e60023]/30 flex items-center justify-center text-xs font-semibold text-[#e60023] dark:text-[#ff4d6a]">
                       {index + 1}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate">
+                      <p className="text-sm font-medium text-[#211922] dark:text-[#f6f6f3] truncate">
                         {draft.description || `Step ${index + 1}`}
                       </p>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                      <p className="text-xs text-[#91918c] mt-0.5">
                         {selectedModel?.name ?? 'Select a model'} • {draft.llm_temperature ?? '—'} temp
                       </p>
                     </div>
@@ -857,7 +857,7 @@ export function NewFlavorBuilder({
                             current === draft.draftId ? null : draft.draftId
                           )
                         }
-                        className="px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-white dark:hover:bg-zinc-900 transition-colors"
+                        className="px-3 py-1.5 rounded-[16px] border border-[#e5e5e0] dark:border-[#3e3e39] text-sm text-[#62625b] dark:text-[#b4b4ad] hover:bg-white dark:hover:bg-[#33332e] transition-colors"
                       >
                         {isExpanded ? 'Hide' : 'Edit'}
                       </button>
@@ -865,7 +865,7 @@ export function NewFlavorBuilder({
                         type="button"
                         onClick={() => moveDraftStep(draft.draftId, -1)}
                         disabled={index === 0}
-                        className="p-2 rounded-lg border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 disabled:opacity-40"
+                        className="p-2 rounded-[16px] border border-[#e5e5e0] dark:border-[#3e3e39] text-[#62625b] dark:text-[#b4b4ad] disabled:opacity-40"
                         aria-label="Move step up"
                       >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -876,7 +876,7 @@ export function NewFlavorBuilder({
                         type="button"
                         onClick={() => moveDraftStep(draft.draftId, 1)}
                         disabled={index === draftSteps.length - 1}
-                        className="p-2 rounded-lg border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 disabled:opacity-40"
+                        className="p-2 rounded-[16px] border border-[#e5e5e0] dark:border-[#3e3e39] text-[#62625b] dark:text-[#b4b4ad] disabled:opacity-40"
                         aria-label="Move step down"
                       >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -886,7 +886,7 @@ export function NewFlavorBuilder({
                       <button
                         type="button"
                         onClick={() => removeDraftStep(draft.draftId)}
-                        className="p-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400"
+                        className="p-2 rounded-[16px] border border-[#e60023]/20 dark:border-[#e60023]/30 text-[#e60023] dark:text-[#ff4d6a]"
                         aria-label="Delete step"
                       >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -897,20 +897,20 @@ export function NewFlavorBuilder({
                   </div>
 
                   {isExpanded && (
-                    <div className="p-5 space-y-4 bg-white dark:bg-zinc-900">
-                      <div className="rounded-xl border border-indigo-200 dark:border-indigo-900 bg-indigo-50/70 dark:bg-indigo-950/30 p-4 space-y-3">
+                    <div className="p-5 space-y-4 bg-white dark:bg-[#33332e]">
+                      <div className="rounded-[20px] border border-[#e60023]/15 dark:border-[#e60023]/20 bg-[#e60023]/5 dark:bg-[#e60023]/8 p-4 space-y-3">
                         <div>
-                          <h3 className="text-sm font-semibold text-indigo-900 dark:text-indigo-200">
+                          <h3 className="text-sm font-semibold text-[#211922] dark:text-[#f6f6f3]">
                             Step Authoring
                           </h3>
-                          <p className="text-xs text-indigo-700 dark:text-indigo-300 mt-1 leading-relaxed">
+                          <p className="text-xs text-[#62625b] dark:text-[#b4b4ad] mt-1 leading-relaxed">
                             Use each step to contribute something specific to the humor chain. Earlier
                             outputs can be referenced in later prompts.
                           </p>
                         </div>
 
                         <div>
-                          <p className="text-[11px] font-semibold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 mb-2">
+                          <p className="text-[11px] font-semibold uppercase tracking-wider text-[#e60023] dark:text-[#ff4d6a] mb-2">
                             Available Earlier Step Outputs
                           </p>
                           {availableTemplateVars.length > 0 ? (
@@ -920,14 +920,14 @@ export function NewFlavorBuilder({
                                   key={variable}
                                   type="button"
                                   onClick={() => insertVariable(draft.draftId, variable)}
-                                  className="px-2.5 py-1 rounded-md border border-indigo-200 dark:border-indigo-800 bg-white/80 dark:bg-zinc-900 text-xs font-medium text-indigo-700 dark:text-indigo-300 hover:bg-white dark:hover:bg-zinc-800 transition-colors"
+                                  className="px-2.5 py-1 rounded-[12px] border border-[#e60023]/20 dark:border-[#e60023]/25 bg-white/80 dark:bg-[#33332e] text-xs font-medium text-[#e60023] dark:text-[#ff4d6a] hover:bg-white dark:hover:bg-[#3e3e39] transition-colors"
                                 >
                                   {variable}
                                 </button>
                               ))}
                             </div>
                           ) : (
-                            <p className="text-xs text-indigo-700 dark:text-indigo-300">
+                            <p className="text-xs text-[#62625b] dark:text-[#b4b4ad]">
                               This is the first step. Later steps will be able to reference it as{' '}
                               <span className="font-mono">${'{step1Output}'}</span>.
                             </p>
@@ -935,7 +935,7 @@ export function NewFlavorBuilder({
                         </div>
 
                         <div>
-                          <p className="text-[11px] font-semibold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 mb-2">
+                          <p className="text-[11px] font-semibold uppercase tracking-wider text-[#e60023] dark:text-[#ff4d6a] mb-2">
                             Common Runtime Variables
                           </p>
                           <div className="flex flex-wrap gap-2">
@@ -944,7 +944,7 @@ export function NewFlavorBuilder({
                                 key={variable}
                                 type="button"
                                 onClick={() => insertVariable(draft.draftId, variable)}
-                                className="px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-white dark:hover:bg-zinc-800 transition-colors"
+                                className="px-2.5 py-1 rounded-[12px] border border-[#e5e5e0] dark:border-[#3e3e39] bg-white/80 dark:bg-[#33332e] text-xs font-medium text-[#62625b] dark:text-[#b4b4ad] hover:bg-white dark:hover:bg-[#3e3e39] transition-colors"
                               >
                                 {variable}
                               </button>
@@ -954,7 +954,7 @@ export function NewFlavorBuilder({
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                        <label className="block text-sm font-medium text-[#62625b] dark:text-[#b4b4ad] mb-1">
                           Step Description
                         </label>
                         <input
@@ -973,7 +973,7 @@ export function NewFlavorBuilder({
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                          <label className="block text-sm font-medium text-[#62625b] dark:text-[#b4b4ad] mb-1">
                             Model
                           </label>
                           <select
@@ -995,7 +995,7 @@ export function NewFlavorBuilder({
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                          <label className="block text-sm font-medium text-[#62625b] dark:text-[#b4b4ad] mb-1">
                             Temperature
                           </label>
                           <input
@@ -1013,7 +1013,7 @@ export function NewFlavorBuilder({
                             disabled={!supportsTemperature}
                             className={cn(inputClass, !supportsTemperature && 'opacity-60 cursor-not-allowed')}
                           />
-                          <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">
+                          <p className="text-[11px] text-[#91918c] mt-1">
                             {supportsTemperature
                               ? 'Editable for this model.'
                               : 'This model does not support temperature. Switch models to edit it.'}
@@ -1023,7 +1023,7 @@ export function NewFlavorBuilder({
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                          <label className="block text-sm font-medium text-[#62625b] dark:text-[#b4b4ad] mb-1">
                             Input Type
                           </label>
                           <select
@@ -1045,7 +1045,7 @@ export function NewFlavorBuilder({
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                          <label className="block text-sm font-medium text-[#62625b] dark:text-[#b4b4ad] mb-1">
                             Output Type
                           </label>
                           <select
@@ -1067,7 +1067,7 @@ export function NewFlavorBuilder({
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                          <label className="block text-sm font-medium text-[#62625b] dark:text-[#b4b4ad] mb-1">
                             Step Type
                           </label>
                           <select
@@ -1090,7 +1090,7 @@ export function NewFlavorBuilder({
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                        <label className="block text-sm font-medium text-[#62625b] dark:text-[#b4b4ad] mb-1">
                           System Prompt
                         </label>
                         <textarea
@@ -1115,7 +1115,7 @@ export function NewFlavorBuilder({
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                        <label className="block text-sm font-medium text-[#62625b] dark:text-[#b4b4ad] mb-1">
                           User Prompt
                         </label>
                         <textarea
@@ -1151,7 +1151,7 @@ export function NewFlavorBuilder({
         <button
           type="submit"
           disabled={loading}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-zinc-100 dark:text-zinc-900 text-sm font-medium hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-[16px] bg-[#e60023] text-white text-sm font-medium hover:bg-[#c9001e] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {loading ? 'Creating Flavor...' : `Create Flavor with ${draftSteps.length} Step${draftSteps.length === 1 ? '' : 's'}`}
         </button>

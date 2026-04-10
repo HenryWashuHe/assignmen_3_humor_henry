@@ -40,7 +40,7 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <button className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 w-9 h-9" aria-label="Toggle theme" />
+      <button className="p-2 rounded-[16px] bg-[#e5e5e0] dark:bg-[#3e3e39] w-9 h-9" aria-label="Toggle theme" />
     )
   }
 
@@ -57,7 +57,7 @@ export function ThemeToggle() {
     <motion.button
       onClick={cycleTheme}
       whileTap={{ scale: 0.88 }}
-      className="p-2 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 transition-colors text-zinc-600 dark:text-zinc-300"
+      className="p-2 rounded-[16px] bg-[#e5e5e0] hover:bg-[#d5d5d0] dark:bg-[#3e3e39] dark:hover:bg-[#4a4a44] transition-colors text-[#62625b] dark:text-[#b4b4ad]"
       aria-label={`Current theme: ${theme}. Click to cycle.`}
       title={`Theme: ${theme}`}
     >

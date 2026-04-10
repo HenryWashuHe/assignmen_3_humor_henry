@@ -27,31 +27,31 @@ export function PageHeader({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.28, ease: 'easeOut' }}
       className={cn(
-        'relative overflow-hidden rounded-[28px] border border-zinc-200/80 dark:border-zinc-800/80',
-        'bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-[0_24px_80px_-42px_rgba(15,23,42,0.35)]',
+        'relative overflow-hidden rounded-[28px] border border-[#e5e5e0] dark:border-[#3e3e39]',
+        'bg-white/90 dark:bg-[#33332e]/90 backdrop-blur-xl',
         className
       )}
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(14,165,233,0.08),transparent_30%),radial-gradient(circle_at_85%_20%,rgba(34,197,94,0.08),transparent_28%),linear-gradient(180deg,rgba(255,255,255,0.65),transparent)] dark:bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_32%),radial-gradient(circle_at_85%_20%,rgba(74,222,128,0.14),transparent_26%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(230,0,35,0.04),transparent_30%),linear-gradient(180deg,rgba(255,255,255,0.5),transparent)] dark:bg-[radial-gradient(circle_at_top_left,rgba(230,0,35,0.06),transparent_32%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent)]" />
       <div className="relative flex flex-col gap-5 px-6 py-6 sm:px-8 sm:py-8 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-3xl">
           {eyebrow && (
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#91918c]">
               {eyebrow}
             </p>
           )}
           <div className="mt-2 flex flex-wrap items-center gap-3">
-            <h1 className="text-3xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50 sm:text-[2rem]">
+            <h1 className="text-3xl font-semibold tracking-tight text-[#211922] dark:text-[#f6f6f3] sm:text-[2rem]" style={{ letterSpacing: '-1.2px' }}>
               {title}
             </h1>
             {badge && (
-              <span className="inline-flex items-center rounded-full border border-sky-200/70 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 dark:border-sky-800/80 dark:bg-sky-950/40 dark:text-sky-300">
+              <span className="inline-flex items-center rounded-full border border-[#e5e5e0] bg-[hsla(60,20%,98%,0.5)] px-3 py-1 text-xs font-medium text-[#62625b] dark:border-[#3e3e39] dark:bg-[#3e3e39] dark:text-[#b4b4ad]">
                 {badge}
               </span>
             )}
           </div>
           {description && (
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600 dark:text-zinc-300 sm:text-[15px]">
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-[#62625b] dark:text-[#b4b4ad] sm:text-[15px]">
               {description}
             </p>
           )}

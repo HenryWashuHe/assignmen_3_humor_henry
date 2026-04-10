@@ -17,7 +17,7 @@ export default function FlavorsLoading() {
         {[0, 1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className="flex items-center gap-4 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900"
+            className="flex items-center gap-4 p-4 rounded-xl border border-[#e5e5e0] dark:border-[#3e3e39] bg-white dark:bg-[#33332e]"
           >
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">

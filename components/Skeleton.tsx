@@ -10,7 +10,7 @@ export function Skeleton({ className }: SkeletonProps) {
   return (
     <div
       className={cn(
-        'rounded-md bg-zinc-200 dark:bg-zinc-800 skeleton-shimmer',
+        'rounded-md bg-[#e5e5e0] dark:bg-[#3e3e39] skeleton-shimmer',
         className
       )}
     />
@@ -43,7 +43,7 @@ export function SkeletonCard({ className }: SkeletonCardProps) {
   return (
     <div
       className={cn(
-        'bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5 space-y-4',
+        'bg-white dark:bg-[#33332e] rounded-[20px] border border-[#e5e5e0] dark:border-[#3e3e39] p-5 space-y-4',
         className
       )}
     >
@@ -66,17 +66,17 @@ export function SkeletonTable({ rows = 5, className }: SkeletonTableProps) {
   return (
     <div
       className={cn(
-        'bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden',
+        'bg-white dark:bg-[#33332e] rounded-[20px] border border-[#e5e5e0] dark:border-[#3e3e39] overflow-hidden',
         className
       )}
     >
-      <div className="border-b border-zinc-200 dark:border-zinc-800 px-6 py-3 flex gap-6">
+      <div className="border-b border-[#e5e5e0] dark:border-[#3e3e39] px-6 py-3 flex gap-6">
         <Skeleton className="h-3 w-16" />
         <Skeleton className="h-3 w-32" />
         <Skeleton className="h-3 w-12" />
         <Skeleton className="h-3 w-20" />
       </div>
-      <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
+      <div className="divide-y divide-[#e5e5e0] dark:divide-[#3e3e39]">
         {Array.from({ length: rows }).map((_, i) => (
           <div key={i} className="px-6 py-4 flex gap-6 items-center">
             <Skeleton className="h-4 w-20" />

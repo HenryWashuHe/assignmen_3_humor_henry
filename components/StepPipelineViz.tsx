@@ -36,14 +36,14 @@ export function StepPipelineViz({ steps }: StepPipelineVizProps) {
     <div className="glass-surface mb-6 rounded-[26px] p-5">
       <div className="mb-4 flex items-center justify-between gap-4">
         <div>
-          <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+          <h3 className="text-sm font-semibold text-[#211922] dark:text-[#f6f6f3]">
             Pipeline Flow
           </h3>
-          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+          <p className="mt-1 text-xs text-[#62625b] dark:text-[#b4b4ad]">
             {steps.length} ordered step{steps.length !== 1 ? 's' : ''} in this flavor.
           </p>
         </div>
-        <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-[11px] font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+        <span className="rounded-full bg-[#e5e5e0] px-2.5 py-1 text-[11px] font-medium text-[#62625b] dark:bg-[#3e3e39] dark:text-[#b4b4ad]">
           Sequential execution
         </span>
       </div>
@@ -56,21 +56,21 @@ export function StepPipelineViz({ steps }: StepPipelineVizProps) {
                 <div
                   className={cn(
                     'flex h-11 w-11 items-center justify-center rounded-2xl text-sm',
-                    'bg-gradient-to-br from-sky-500/15 to-emerald-500/15 border border-sky-200 dark:border-sky-800',
-                    'text-sky-700 dark:text-sky-300 font-semibold',
+                    'bg-[#e5e5e0] border border-[#e0e0d9] dark:bg-[#3e3e39] dark:border-[#4a4a44]',
+                    'text-[#e60023] dark:text-[#ff4d6a] font-semibold',
                     'relative z-10'
                   )}
                 >
                   {step.order_by}
                 </div>
                 <p
-                  className="text-xs text-center text-zinc-600 dark:text-zinc-400 font-medium truncate w-full px-1"
+                  className="text-xs text-center text-[#211922] dark:text-[#f6f6f3] font-medium truncate w-full px-1"
                   title={step.description ?? `Step ${step.order_by}`}
                 >
                   {step.description ?? `Step ${step.order_by}`}
                 </p>
                 {step.humor_flavor_step_types?.slug && (
-                  <span className="text-xs text-zinc-400 dark:text-zinc-500 truncate w-full text-center px-1">
+                  <span className="text-xs text-[#91918c] truncate w-full text-center px-1">
                     {step.humor_flavor_step_types.slug}
                   </span>
                 )}
@@ -88,13 +88,13 @@ export function StepPipelineViz({ steps }: StepPipelineVizProps) {
                       stroke="currentColor"
                       strokeWidth="1.5"
                       strokeDasharray="4 3"
-                      className="text-sky-300 dark:text-sky-700"
+                      className="text-[#e60023]/40 dark:text-[#e60023]/30"
                       style={{ animation: 'dash 1.5s linear infinite', strokeDashoffset: 20 }}
                     />
                     <polygon
                       points="28,4 32,8 28,12"
                       fill="currentColor"
-                      className="text-sky-300 dark:text-sky-700"
+                      className="text-[#e60023]/40 dark:text-[#e60023]/30"
                     />
                   </svg>
                 </div>

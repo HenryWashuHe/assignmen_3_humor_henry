@@ -12,7 +12,7 @@ export default function TestLoading() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4">
+        <div className="bg-white dark:bg-[#33332e] rounded-xl border border-[#e5e5e0] dark:border-[#3e3e39] p-6 space-y-4">
           <Skeleton className="h-5 w-28" />
           <Skeleton className="h-10 w-full rounded-lg" />
           <Skeleton className="h-5 w-28" />
@@ -20,10 +20,10 @@ export default function TestLoading() {
             <Skeleton className="h-10 flex-1 rounded-lg" />
             <Skeleton className="h-10 flex-1 rounded-lg" />
           </div>
-          <Skeleton className="h-40 w-full rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-700" />
+          <Skeleton className="h-40 w-full rounded-lg border-2 border-dashed border-[#e5e5e0] dark:border-[#3e3e39]" />
           <Skeleton className="h-11 w-full rounded-xl" />
         </div>
-        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6">
+        <div className="bg-white dark:bg-[#33332e] rounded-xl border border-[#e5e5e0] dark:border-[#3e3e39] p-6">
           <Skeleton className="h-5 w-20 mb-4" />
           <div className="flex items-center justify-center py-16">
             <Skeleton className="h-12 w-12 rounded-full" />

@@ -143,10 +143,10 @@ export function CommandPalette() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -8 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
-            className="relative w-full max-w-md mx-4 bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden"
+            className="relative w-full max-w-md mx-4 bg-white dark:bg-[#33332e] rounded-[20px] shadow-2xl border border-[#e5e5e0] dark:border-[#3e3e39] overflow-hidden"
           >
-            <div className="flex items-center gap-3 px-4 border-b border-zinc-200 dark:border-zinc-800">
-              <svg className="w-4 h-4 text-zinc-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="flex items-center gap-3 px-4 border-b border-[#e5e5e0] dark:border-[#3e3e39]">
+              <svg className="w-4 h-4 text-[#91918c] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <input
@@ -155,15 +155,15 @@ export function CommandPalette() {
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Search commands..."
-                className="flex-1 py-3.5 bg-transparent text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none"
+                className="flex-1 py-3.5 bg-transparent text-sm text-[#211922] dark:text-[#f6f6f3] placeholder-[#91918c] focus:outline-none"
               />
-              <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-[10px] font-medium text-zinc-500 dark:text-zinc-400">
+              <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded border border-[#e5e5e0] dark:border-[#3e3e39] bg-[#f6f6f3] dark:bg-[#3e3e39] text-[10px] font-medium text-[#91918c]">
                 ESC
               </kbd>
             </div>
             <div className="max-h-64 overflow-y-auto py-2">
               {filtered.length === 0 ? (
-                <div className="px-4 py-6 text-center text-sm text-zinc-400 dark:text-zinc-500">
+                <div className="px-4 py-6 text-center text-sm text-[#91918c]">
                   No results found
                 </div>
               ) : (
@@ -174,11 +174,11 @@ export function CommandPalette() {
                     onMouseEnter={() => setSelectedIndex(i)}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors ${
                       i === selectedIndex
-                        ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400'
-                        : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
+                        ? 'bg-[#e60023]/8 dark:bg-[#e60023]/12 text-[#e60023] dark:text-[#ff4d6a]'
+                        : 'text-[#211922] dark:text-[#f6f6f3] hover:bg-[#f6f6f3] dark:hover:bg-[#3e3e39]'
                     }`}
                   >
-                    <span className={i === selectedIndex ? 'text-indigo-500 dark:text-indigo-400' : 'text-zinc-400'}>
+                    <span className={i === selectedIndex ? 'text-[#e60023] dark:text-[#ff4d6a]' : 'text-[#91918c]'}>
                       {cmd.icon}
                     </span>
                     {cmd.label}
@@ -186,13 +186,13 @@ export function CommandPalette() {
                 ))
               )}
             </div>
-            <div className="px-4 py-2 border-t border-zinc-200 dark:border-zinc-800 flex items-center gap-4 text-[10px] text-zinc-400 dark:text-zinc-500">
+            <div className="px-4 py-2 border-t border-[#e5e5e0] dark:border-[#3e3e39] flex items-center gap-4 text-[10px] text-[#91918c]">
               <span className="flex items-center gap-1">
-                <kbd className="px-1 py-0.5 rounded border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 font-medium">↑↓</kbd>
+                <kbd className="px-1 py-0.5 rounded border border-[#e5e5e0] dark:border-[#3e3e39] bg-[#f6f6f3] dark:bg-[#3e3e39] font-medium">↑↓</kbd>
                 navigate
               </span>
               <span className="flex items-center gap-1">
-                <kbd className="px-1 py-0.5 rounded border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 font-medium">↵</kbd>
+                <kbd className="px-1 py-0.5 rounded border border-[#e5e5e0] dark:border-[#3e3e39] bg-[#f6f6f3] dark:bg-[#3e3e39] font-medium">↵</kbd>
                 select
               </span>
             </div>

@@ -113,16 +113,16 @@ export function StepForm({
   }
 
   const inputClass = cn(
-    'w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700',
-    'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100',
-    'focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400',
+    'w-full px-3 py-2 rounded-[16px] border border-[#91918c] dark:border-[#3e3e39]',
+    'bg-white dark:bg-[#3e3e39] text-[#211922] dark:text-[#f6f6f3]',
+    'focus:outline-none focus:ring-2 focus:ring-[#435ee5]',
     'text-sm transition-shadow'
   )
 
   const promptClass = cn(
     inputClass,
-    'font-mono text-xs bg-zinc-50 dark:bg-zinc-900/80 resize-y',
-    'placeholder-zinc-400 dark:placeholder-zinc-600'
+    'font-mono text-xs bg-[#f6f6f3] dark:bg-[#33332e]/80 resize-y',
+    'placeholder-[#91918c]'
   )
 
   const insertVariable = (variable: string) => {
@@ -154,17 +154,17 @@ export function StepForm({
       className={cn('space-y-4', shaking && 'animate-shake')}
     >
       {error && (
-        <div className="rounded-lg bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 p-3">
-          <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+        <div className="rounded-[16px] bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 p-3">
+          <p className="text-sm text-[#9e0a0a] dark:text-red-300">{error}</p>
         </div>
       )}
 
-      <div className="rounded-xl border border-indigo-200 dark:border-indigo-900 bg-indigo-50/70 dark:bg-indigo-950/30 p-4 space-y-3">
+      <div className="rounded-[20px] border border-[#e5e5e0] dark:border-[#3e3e39] bg-[hsla(60,20%,98%,0.5)] dark:bg-[#3e3e39]/50 p-4 space-y-3">
         <div>
-          <h3 className="text-sm font-semibold text-indigo-900 dark:text-indigo-200">
+          <h3 className="text-sm font-semibold text-[#211922] dark:text-[#f6f6f3]">
             Pipeline Authoring
           </h3>
-          <p className="text-xs text-indigo-700 dark:text-indigo-300 mt-1 leading-relaxed">
+          <p className="text-xs text-[#62625b] dark:text-[#b4b4ad] mt-1 leading-relaxed">
             Humor flavors are chained prompt pipelines. Earlier steps can feed later ones, so
             this form is designed for authoring a sequence like recognition → description →
             caption generation rather than isolated prompts.
@@ -172,7 +172,7 @@ export function StepForm({
         </div>
 
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 mb-2">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-[#62625b] dark:text-[#b4b4ad] mb-2">
             Available Earlier Step Outputs
           </p>
           {availableTemplateVars.length > 0 ? (
@@ -182,14 +182,14 @@ export function StepForm({
                   key={variable}
                   type="button"
                   onClick={() => insertVariable(variable)}
-                  className="px-2.5 py-1 rounded-md border border-indigo-200 dark:border-indigo-800 bg-white/80 dark:bg-zinc-900 text-xs font-medium text-indigo-700 dark:text-indigo-300 hover:bg-white dark:hover:bg-zinc-800 transition-colors"
+                  className="px-2.5 py-1 rounded-[12px] border border-[#e60023]/20 bg-white/80 dark:bg-[#3e3e39] text-xs font-medium text-[#e60023] dark:text-[#ff4d6a] hover:bg-white dark:hover:bg-[#4a4a44] transition-colors"
                 >
                   {variable}
                 </button>
               ))}
             </div>
           ) : (
-            <p className="text-xs text-indigo-700 dark:text-indigo-300">
+            <p className="text-xs text-[#62625b] dark:text-[#b4b4ad]">
               This is currently the first step in the chain. Later steps will be able to reference
               its result as <span className="font-mono">${'{step1Output}'}</span>.
             </p>
@@ -197,7 +197,7 @@ export function StepForm({
         </div>
 
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 mb-2">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-[#62625b] dark:text-[#b4b4ad] mb-2">
             Common Runtime Variables
           </p>
           <div className="flex flex-wrap gap-2">
@@ -206,13 +206,13 @@ export function StepForm({
                 key={variable}
                 type="button"
                 onClick={() => insertVariable(variable)}
-                className="px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-white dark:hover:bg-zinc-800 transition-colors"
+                className="px-2.5 py-1 rounded-[12px] border border-[#e5e5e0] dark:border-[#3e3e39] bg-white/80 dark:bg-[#3e3e39] text-xs font-medium text-[#211922] dark:text-[#f6f6f3] hover:bg-white dark:hover:bg-[#4a4a44] transition-colors"
               >
                 {variable}
               </button>
             ))}
           </div>
-          <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-2 leading-relaxed">
+          <p className="text-[11px] text-[#91918c] mt-2 leading-relaxed">
             These are commonly used in Matrix captioning prompts. Insert buttons target the last
             prompt field you focused.
           </p>
@@ -220,7 +220,7 @@ export function StepForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+        <label className="block text-sm font-medium text-[#211922] dark:text-[#f6f6f3] mb-1">
           Description
         </label>
         <input
@@ -234,7 +234,7 @@ export function StepForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+          <label className="block text-sm font-medium text-[#211922] dark:text-[#f6f6f3] mb-1">
             Model <span className="text-red-500">*</span>
           </label>
           <select
@@ -252,7 +252,7 @@ export function StepForm({
 
         {isTemperatureSupported && (
           <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+            <label className="block text-sm font-medium text-[#211922] dark:text-[#f6f6f3] mb-1">
               Temperature (0–2)
             </label>
             <input
@@ -270,7 +270,7 @@ export function StepForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
-          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+          <label className="block text-sm font-medium text-[#211922] dark:text-[#f6f6f3] mb-1">
             Input Type <span className="text-red-500">*</span>
           </label>
           <select
@@ -287,7 +287,7 @@ export function StepForm({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+          <label className="block text-sm font-medium text-[#211922] dark:text-[#f6f6f3] mb-1">
             Output Type <span className="text-red-500">*</span>
           </label>
           <select
@@ -304,7 +304,7 @@ export function StepForm({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+          <label className="block text-sm font-medium text-[#211922] dark:text-[#f6f6f3] mb-1">
             Step Type <span className="text-red-500">*</span>
           </label>
           <select
@@ -322,7 +322,7 @@ export function StepForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+        <label className="block text-sm font-medium text-[#211922] dark:text-[#f6f6f3] mb-1">
           System Prompt
         </label>
         <textarea
@@ -337,7 +337,7 @@ export function StepForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+        <label className="block text-sm font-medium text-[#211922] dark:text-[#f6f6f3] mb-1">
           User Prompt
         </label>
         <textarea
@@ -355,7 +355,7 @@ export function StepForm({
         <button
           type="submit"
           disabled={loading}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-zinc-100 dark:text-zinc-900 text-sm font-medium hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-[16px] bg-[#e60023] text-white text-sm font-medium hover:bg-[#c9001e] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {loading ? (
             <>
@@ -371,7 +371,7 @@ export function StepForm({
           type="button"
           onClick={onCancel}
           disabled={loading}
-          className="px-4 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors disabled:opacity-60"
+          className="px-4 py-2.5 rounded-[16px] bg-[#e5e5e0] dark:bg-[#3e3e39] text-[#211922] dark:text-[#f6f6f3] text-sm font-medium hover:bg-[#d5d5d0] dark:hover:bg-[#4a4a44] transition-colors disabled:opacity-60"
         >
           Cancel
         </button>

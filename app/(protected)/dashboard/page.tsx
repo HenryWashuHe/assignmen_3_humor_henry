@@ -69,13 +69,13 @@ export default async function DashboardPage() {
               <>
                 <Link
                   href="/flavors/new"
-                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-sky-500 via-cyan-500 to-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_18px_40px_-22px_rgba(14,165,233,0.95)] transition-all hover:-translate-y-0.5 hover:brightness-105"
+                  className="inline-flex items-center gap-2 rounded-[16px] bg-[#e60023] px-4 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-[#c9001e]"
                 >
                   New Flavor
                 </Link>
                 <Link
                   href="/test"
-                  className="inline-flex items-center gap-2 rounded-xl border border-zinc-300 bg-white/80 px-4 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:border-sky-300 hover:text-sky-700 dark:border-zinc-700 dark:bg-zinc-900/70 dark:text-zinc-200 dark:hover:border-sky-800 dark:hover:text-sky-300"
+                  className="inline-flex items-center gap-2 rounded-[16px] bg-[#e5e5e0] px-4 py-2.5 text-sm font-medium text-[#211922] transition-colors hover:bg-[#d5d5d0] dark:bg-[#3e3e39] dark:text-[#f6f6f3] dark:hover:bg-[#4a4a44]"
                 >
                   Run Test
                 </Link>
@@ -105,25 +105,25 @@ export default async function DashboardPage() {
           </div>
 
           <div className="glass-surface overflow-hidden rounded-[28px]">
-            <div className="flex items-center justify-between gap-4 border-b border-zinc-200/80 px-6 py-5 dark:border-zinc-800/80">
+            <div className="flex items-center justify-between gap-4 border-b border-[#e5e5e0] px-6 py-5 dark:border-[#3e3e39]">
               <div>
-                <h2 className="text-base font-semibold text-zinc-950 dark:text-zinc-50">Recent Flavors</h2>
-                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                <h2 className="text-base font-semibold text-[#211922] dark:text-[#f6f6f3]">Recent Flavors</h2>
+                <p className="mt-1 text-sm text-[#62625b] dark:text-[#b4b4ad]">
                   Recently created pipelines and experiment branches.
                 </p>
               </div>
               <Link
                 href="/flavors"
-                className="text-sm font-medium text-sky-600 transition-colors hover:text-sky-700 dark:text-sky-300 dark:hover:text-sky-200"
+                className="text-sm font-medium text-[#e60023] transition-colors hover:text-[#c9001e] dark:text-[#ff4d6a] dark:hover:text-[#ff6680]"
               >
                 View all
               </Link>
             </div>
-            <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
+            <div className="divide-y divide-[#e5e5e0] dark:divide-[#3e3e39]">
               {recentFlavors?.length === 0 && (
-                <div className="px-6 py-8 text-center text-zinc-400 dark:text-zinc-500">
+                <div className="px-6 py-8 text-center text-[#91918c]">
                   No flavors yet.{' '}
-                  <Link href="/flavors/new" className="text-sky-600 dark:text-sky-300 hover:underline">
+                  <Link href="/flavors/new" className="text-[#e60023] dark:text-[#ff4d6a] hover:underline">
                     Create your first flavor
                   </Link>
                 </div>
@@ -132,27 +132,27 @@ export default async function DashboardPage() {
                 <Link
                   key={flavor.id}
                   href={`/flavors/${flavor.id}`}
-                  className="group flex items-center gap-4 px-6 py-4 transition-colors hover:bg-zinc-50/80 dark:hover:bg-zinc-800/40"
+                  className="group flex items-center gap-4 px-6 py-4 transition-colors hover:bg-[#f6f6f3]/80 dark:hover:bg-[#3e3e39]/40"
                 >
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500/15 to-emerald-500/15 text-sm font-semibold text-sky-700 ring-1 ring-sky-200/70 dark:text-sky-300 dark:ring-sky-800/70">
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-[#e5e5e0] dark:bg-[#3e3e39] text-sm font-semibold text-[#e60023] ring-1 ring-[#e5e5e0] dark:ring-[#3e3e39]">
                     {flavor.slug.slice(0, 1).toUpperCase()}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-zinc-950 transition-colors group-hover:text-sky-600 dark:text-zinc-50 dark:group-hover:text-sky-300">
+                    <p className="truncate text-sm font-medium text-[#211922] transition-colors group-hover:text-[#e60023] dark:text-[#f6f6f3] dark:group-hover:text-[#ff4d6a]">
                       {flavor.slug}
                     </p>
                     {flavor.description && (
-                      <p className="mt-0.5 truncate text-xs text-zinc-500 dark:text-zinc-400">
+                      <p className="mt-0.5 truncate text-xs text-[#62625b] dark:text-[#b4b4ad]">
                         {flavor.description}
                       </p>
                     )}
                   </div>
-                  <span className="whitespace-nowrap text-xs text-zinc-400 dark:text-zinc-500">
+                  <span className="whitespace-nowrap text-xs text-[#91918c]">
                     {flavor.created_datetime_utc
                       ? new Date(flavor.created_datetime_utc).toLocaleDateString()
                       : '—'}
                   </span>
-                  <svg className="h-4 w-4 flex-shrink-0 text-zinc-300 transition-colors group-hover:text-sky-500 dark:text-zinc-600 dark:group-hover:text-sky-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-4 w-4 flex-shrink-0 text-[#91918c] transition-colors group-hover:text-[#e60023] dark:group-hover:text-[#ff4d6a]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </Link>
