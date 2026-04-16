@@ -18,14 +18,18 @@ interface DuplicableFlavorStep {
 }
 
 function getDuplicateSlug(sourceSlug: string, existingSlugs: string[]) {
-  const baseSlug = `${sourceSlug}-copy`
+  const normalizedSourceSlug = sourceSlug.trim()
+  const existingSlugSet = new Set(existingSlugs)
+  const copyMatch = normalizedSourceSlug.match(/^(.*)-copy(?:-(\d+))?$/)
+  const rootSlug = copyMatch?.[1] || normalizedSourceSlug
+  const baseSlug = `${rootSlug}-copy`
 
-  if (!existingSlugs.includes(baseSlug)) {
+  if (!existingSlugSet.has(baseSlug)) {
     return baseSlug
   }
 
   let suffix = 2
-  while (existingSlugs.includes(`${baseSlug}-${suffix}`)) {
+  while (existingSlugSet.has(`${baseSlug}-${suffix}`)) {
     suffix += 1
   }
 
@@ -84,17 +88,16 @@ export async function POST(request: NextRequest, context: RouteContext) {
       )
     }
 
-    const baseSlug = `${sourceFlavor.slug}-copy`
-    const { data: similarFlavors, error: similarFlavorsError } = await supabase
+    const { data: existingFlavors, error: existingFlavorsError } = await supabase
       .from('humor_flavors')
       .select('slug')
-      .like('slug', `${baseSlug}%`)
+      .neq('id', flavorId)
 
-    if (similarFlavorsError) throw new Error(similarFlavorsError.message)
+    if (existingFlavorsError) throw new Error(existingFlavorsError.message)
 
     const duplicateSlug = getDuplicateSlug(
       sourceFlavor.slug,
-      (similarFlavors ?? []).map((flavor) => flavor.slug)
+      (existingFlavors ?? []).map((flavor) => flavor.slug)
     )
 
     const { data: newFlavor, error: newFlavorError } = await supabase
@@ -128,10 +131,16 @@ export async function POST(request: NextRequest, context: RouteContext) {
           }))
         )
 
-      if (insertStepsError) throw new Error(insertStepsError.message)
+      if (insertStepsError) {
+        await supabase.from('humor_flavors').delete().eq('id', newFlavor.id)
+        throw new Error(insertStepsError.message)
+      }
     }
 
-    return NextResponse.json({ success: true, data: newFlavor }, { status: 201 })
+    return NextResponse.json(
+      { success: true, data: newFlavor, meta: { duplicatedStepCount: stepsToDuplicate.length } },
+      { status: 201 }
+    )
   } catch (error) {
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : 'Unknown error' },

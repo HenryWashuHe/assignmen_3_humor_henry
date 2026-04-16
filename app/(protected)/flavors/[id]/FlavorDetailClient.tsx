@@ -46,7 +46,7 @@ export function FlavorDetailClient({ flavor }: FlavorDetailClientProps) {
       }
 
       const data = await response.json()
-      toast.success('Flavor duplicated')
+      toast.success(`Created ${data.data?.slug ?? 'duplicate flavor'}`)
 
       if (data.data?.id) {
         router.push(`/flavors/${data.data.id}`)

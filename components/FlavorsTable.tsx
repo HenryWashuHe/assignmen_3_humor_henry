@@ -1,9 +1,12 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { toast } from 'sonner'
 import { EmptyState } from './EmptyState'
+import { Tooltip } from './Tooltip'
 
 interface Flavor {
   id: number
@@ -23,7 +26,9 @@ function formatDate(dateStr: string | null): string {
 }
 
 export function FlavorsTable({ flavors, stepCounts }: FlavorsTableProps) {
+  const router = useRouter()
   const [search, setSearch] = useState('')
+  const [duplicatingFlavorId, setDuplicatingFlavorId] = useState<number | null>(null)
   const searchRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -46,6 +51,34 @@ export function FlavorsTable({ flavors, stepCounts }: FlavorsTableProps) {
       (f.description?.toLowerCase() ?? '').includes(q)
     )
   })
+
+  const handleDuplicate = async (flavorId: number) => {
+    try {
+      setDuplicatingFlavorId(flavorId)
+
+      const response = await fetch(`/api/flavors/${flavorId}/duplicate`, {
+        method: 'POST',
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error ?? 'Duplicate failed')
+      }
+
+      toast.success(`Created ${data.data?.slug ?? 'duplicate flavor'}`)
+
+      if (data.data?.id) {
+        router.push(`/flavors/${data.data.id}`)
+      } else {
+        router.refresh()
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Duplicate failed')
+    } finally {
+      setDuplicatingFlavorId(null)
+    }
+  }
 
   if (flavors.length === 0) {
     return (
@@ -102,37 +135,52 @@ export function FlavorsTable({ flavors, stepCounts }: FlavorsTableProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2, delay: Math.min(index * 0.04, 0.4), ease: 'easeOut' }}
             >
-            <Link href={`/flavors/${flavor.id}`}>
-              <div className="glass-surface group flex cursor-pointer items-center gap-4 rounded-[20px] p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#e60023]/30 dark:hover:border-[#e60023]/20">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-medium text-[#211922] transition-colors group-hover:text-[#e60023] dark:text-[#f6f6f3] dark:group-hover:text-[#ff4d6a]">
-                      {flavor.slug}
-                    </span>
-                    <span className="rounded-full bg-[#e5e5e0] px-2 py-0.5 text-xs text-[#62625b] dark:bg-[#3e3e39] dark:text-[#b4b4ad]">
-                      {stepCounts[flavor.id] ?? 0} step{stepCounts[flavor.id] !== 1 ? 's' : ''}
-                    </span>
+              <div className="glass-surface group flex items-center gap-4 rounded-[20px] p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#e60023]/30 dark:hover:border-[#e60023]/20">
+                <Link href={`/flavors/${flavor.id}`} className="flex min-w-0 flex-1 items-center gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-medium text-[#211922] transition-colors group-hover:text-[#e60023] dark:text-[#f6f6f3] dark:group-hover:text-[#ff4d6a]">
+                        {flavor.slug}
+                      </span>
+                      <span className="rounded-full bg-[#e5e5e0] px-2 py-0.5 text-xs text-[#62625b] dark:bg-[#3e3e39] dark:text-[#b4b4ad]">
+                        {stepCounts[flavor.id] ?? 0} step{stepCounts[flavor.id] !== 1 ? 's' : ''}
+                      </span>
+                    </div>
+                    {flavor.description && (
+                      <p className="mt-1 text-sm text-[#62625b] dark:text-[#b4b4ad] truncate">
+                        {flavor.description}
+                      </p>
+                    )}
                   </div>
-                  {flavor.description && (
-                    <p className="mt-1 text-sm text-[#62625b] dark:text-[#b4b4ad] truncate">
-                      {flavor.description}
-                    </p>
-                  )}
-                </div>
-                <span className="hidden whitespace-nowrap text-xs text-[#91918c] sm:block">
-                  {formatDate(flavor.created_datetime_utc)}
-                </span>
-                <svg
-                  className="h-4 w-4 flex-shrink-0 text-[#91918c] transition-colors group-hover:text-[#e60023] dark:group-hover:text-[#ff4d6a]"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
+                  <span className="hidden whitespace-nowrap text-xs text-[#91918c] sm:block">
+                    {formatDate(flavor.created_datetime_utc)}
+                  </span>
+                  <svg
+                    className="h-4 w-4 flex-shrink-0 text-[#91918c] transition-colors group-hover:text-[#e60023] dark:group-hover:text-[#ff4d6a]"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+
+                <Tooltip content="Duplicate this flavor and all of its steps">
+                  <button
+                    type="button"
+                    onClick={() => handleDuplicate(flavor.id)}
+                    disabled={duplicatingFlavorId === flavor.id}
+                    className="flex flex-shrink-0 items-center gap-2 rounded-[16px] border border-[#e5e5e0] px-3 py-2 text-sm font-medium text-[#62625b] transition-colors active:scale-[0.97] disabled:opacity-60 hover:bg-[#f6f6f3] dark:border-[#3e3e39] dark:text-[#b4b4ad] dark:hover:bg-[#3e3e39]"
+                    aria-label={`Duplicate ${flavor.slug}`}
+                  >
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H7a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-1M8 7V6a2 2 0 012-2h7a2 2 0 012 2v7a2 2 0 01-2 2h-1M8 7h8a2 2 0 012 2v8a2 2 0 01-2 2h-8a2 2 0 01-2-2V9a2 2 0 012-2z" />
+                    </svg>
+                    {duplicatingFlavorId === flavor.id ? 'Duplicating...' : 'Duplicate'}
+                  </button>
+                </Tooltip>
               </div>
-            </Link>
             </motion.div>
           ))}
         </div>
