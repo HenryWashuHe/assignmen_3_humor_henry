@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase-browser'
@@ -9,6 +9,7 @@ import { ProgressStepper } from '@/components/ProgressStepper'
 import { cn } from '@/lib/cn'
 
 const API_BASE = 'https://api.almostcrackd.ai'
+const BATCH_CONCURRENCY = 3
 
 interface TestFlavorClientProps {
   flavors: Pick<HumorFlavor, 'id' | 'slug'>[]
@@ -189,10 +190,15 @@ export function TestFlavorClient({ flavors, imageSets, initialFlavorId }: TestFl
     setSetImages(images)
   }
 
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl)
+    }
+  }, [previewUrl])
+
   const setFile = (file: File) => {
     setSelectedFile(file)
-    const url = URL.createObjectURL(file)
-    setPreviewUrl(url)
+    setPreviewUrl(URL.createObjectURL(file))
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -263,51 +269,62 @@ export function TestFlavorClient({ flavors, imageSets, initialFlavorId }: TestFl
         )
 
         let completedCount = 0
+        const queue = [...setImages]
 
-        await Promise.all(
-          setImages.map(async (image) => {
+        const processOne = async (image: Image) => {
+          setBatchResults((prev) =>
+            prev.map((result) =>
+              result.imageId === image.id
+                ? { ...result, status: 'processing', error: null }
+                : result
+            )
+          )
+
+          try {
+            const generatedCaptions = await generateCaptionsForImage(image.id, token)
             setBatchResults((prev) =>
               prev.map((result) =>
                 result.imageId === image.id
-                  ? { ...result, status: 'processing', error: null }
+                  ? {
+                      ...result,
+                      status: 'done',
+                      captions: generatedCaptions,
+                      error: null,
+                    }
                   : result
               )
             )
+          } catch (error) {
+            setBatchResults((prev) =>
+              prev.map((result) =>
+                result.imageId === image.id
+                  ? {
+                      ...result,
+                      status: 'error',
+                      captions: [],
+                      error: error instanceof Error ? error.message : 'Generation failed',
+                    }
+                  : result
+              )
+            )
+          } finally {
+            completedCount += 1
+            setStageMessage(`Processing ${completedCount}/${setImages.length} images...`)
+          }
+        }
 
-            try {
-              const generatedCaptions = await generateCaptionsForImage(image.id, token)
-              completedCount += 1
-              setBatchResults((prev) =>
-                prev.map((result) =>
-                  result.imageId === image.id
-                    ? {
-                        ...result,
-                        status: 'done',
-                        captions: generatedCaptions,
-                        error: null,
-                      }
-                    : result
-                )
-              )
-            } catch (error) {
-              completedCount += 1
-              setBatchResults((prev) =>
-                prev.map((result) =>
-                  result.imageId === image.id
-                    ? {
-                        ...result,
-                        status: 'error',
-                        captions: [],
-                        error: error instanceof Error ? error.message : 'Generation failed',
-                      }
-                    : result
-                )
-              )
-            } finally {
-              setStageMessage(`Processing ${completedCount}/${setImages.length} images...`)
+        const workers = Array.from(
+          { length: Math.min(BATCH_CONCURRENCY, queue.length) },
+          async () => {
+            while (queue.length > 0) {
+              const next = queue.shift()
+              if (!next) break
+              await processOne(next)
             }
-          })
+          }
         )
+
+        await Promise.all(workers)
 
         setStage('done')
         setStageMessage(`Completed ${setImages.length} study-set image runs`)

@@ -14,19 +14,6 @@ interface StepPipelineVizProps {
   steps: PipelineStep[]
 }
 
-const stepTypeIcons: Record<string, string> = {
-  caption: '💬',
-  analysis: '🔍',
-  transform: '⚡',
-  filter: '🎯',
-  default: '📦',
-}
-
-function getIcon(slug?: string | null): string {
-  if (!slug) return stepTypeIcons.default
-  return stepTypeIcons[slug] ?? stepTypeIcons.default
-}
-
 export function StepPipelineViz({ steps }: StepPipelineVizProps) {
   if (steps.length === 0) return null
 
