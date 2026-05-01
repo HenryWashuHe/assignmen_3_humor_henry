@@ -91,7 +91,6 @@ export async function POST(request: NextRequest, context: RouteContext) {
     const { data: existingFlavors, error: existingFlavorsError } = await supabase
       .from('humor_flavors')
       .select('slug')
-      .neq('id', flavorId)
 
     if (existingFlavorsError) throw new Error(existingFlavorsError.message)
 
